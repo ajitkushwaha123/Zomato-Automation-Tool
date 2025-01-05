@@ -14,7 +14,24 @@ const PORT = process.env.PORT || 5000;
 app.use(express.json());
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: (origin, callback) => {
+      const allowedDomains = [
+        /^https:\/\/.*\.magicscale\.in$/,
+        "http://localhost:5173",
+      ];
+      if (
+        allowedDomains.some((pattern) =>
+          typeof pattern === "string"
+            ? pattern === origin
+            : pattern.test(origin)
+        ) ||
+        !origin
+      ) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
   })
 );
