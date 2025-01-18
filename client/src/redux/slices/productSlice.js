@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
-const api = "http://localhost:2801";
+const API_URL = `${import.meta.env.VITE_API_URL}/api`;
 
 export const handleMenuUpload = createAsyncThunk(
   "product/handleMenuUpload",
@@ -11,7 +11,7 @@ export const handleMenuUpload = createAsyncThunk(
     });
     try {
       const response = await axios.post(
-        `${api}/api/gemini/upload-menu`,
+        `${API_URL}/gemini/upload-menu`,
         formData,
         {
           headers: {

@@ -3,6 +3,8 @@ import { motion } from "framer-motion";
 import { CloudUpload } from "lucide-react";
 import axios from "axios";
 
+const API_URL = `${import.meta.env.VITE_API_URL}/api`;
+
 const AutomationButton = ({ data }) => {
   const [isLoading, setIsLoading] = useState(false);
   console.log("data", data);
@@ -17,12 +19,9 @@ const AutomationButton = ({ data }) => {
     item_type,
   }) => {
     try {
-      const response = await axios.post(
-        "http://localhost:2801/api/zomato/data",
-        {
-          data,
-        }
-      );
+      const response = await axios.post(`${API_URL}/zomato/data`, {
+        data,
+      });
 
       console.log(response.data);
     } catch (err) {
@@ -61,4 +60,3 @@ const AutomationButton = ({ data }) => {
 };
 
 export default AutomationButton;
-

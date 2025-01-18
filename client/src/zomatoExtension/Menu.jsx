@@ -6,8 +6,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { InputFieldPlaceholder } from "../components/ui/InputFieldPlaceholder";
 import AutomationButton from "./AutomationButton";
 
+const API_URL = `${import.meta.env.VITE_API_URL}/api`;
+
 const Menu = () => {
-  const api = "http://localhost:2801";
   const dispatch = useDispatch();
   const { menuData, error, message, isLoading } = useSelector(
     (state) => state.menu
@@ -28,7 +29,7 @@ const Menu = () => {
 
   const handleMenuUpdate = async () => {
     try {
-      const response = await axios.post(`${api}/api/gemini/update-menu`, {
+      const response = await axios.post(`${API_URL}/gemini/update-menu`, {
         data: productData,
         input,
       });

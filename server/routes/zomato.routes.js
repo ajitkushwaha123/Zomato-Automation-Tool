@@ -7,15 +7,14 @@ zomatoRouter.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
   const browser = await puppeteer.launch({
-    headless: false, 
+    headless: false,
     args: ["--no-sandbox", "--disable-setuid-sandbox"],
-    userDataDir: "./zomato-session", 
+    userDataDir: "./zomato-session",
   });
 
   const page = await browser.newPage();
 
   try {
-    
     await page.goto("https://www.zomato.com/login", {
       waitUntil: "networkidle2",
     });
@@ -41,7 +40,6 @@ zomatoRouter.post("/data", async (req, res) => {
   const { data } = req.body;
 
   try {
-
     const browser = await puppeteer.connect({
       browserWSEndpoint:
         "ws://localhost:9222/devtools/browser/f418ff90-c53c-4e4b-a64b-d4cf42e6182a",
