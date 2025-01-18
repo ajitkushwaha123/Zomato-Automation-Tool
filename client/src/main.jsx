@@ -5,12 +5,16 @@ import App from "./App";
 import { store } from "./store";
 import { Provider } from "react-redux";
 
+import { NextUIProvider } from "@nextui-org/react";
+
 const root = document.getElementById("root");
 
 ReactDOM.createRoot(root).render(
-  <BrowserRouter>
-    <Provider store={store}>
-      <App />
-    </Provider>
-  </BrowserRouter>
+  <NextUIProvider>
+    <BrowserRouter>
+      <Provider store={store}>
+        <App />
+      </Provider>
+    </BrowserRouter>
+  </NextUIProvider>
 );

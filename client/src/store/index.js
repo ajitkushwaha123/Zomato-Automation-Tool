@@ -1,5 +1,7 @@
 import { configureStore, createSlice } from "@reduxjs/toolkit";
+import menuSlice from "../redux/slices/productSlice";
 
+// Auth slice
 const authSlice = createSlice({
   name: "auth",
   initialState: {
@@ -15,8 +17,12 @@ const authSlice = createSlice({
   },
 });
 
+
 export const authActions = authSlice.actions;
 
 export const store = configureStore({
-  reducer: { reducer: authSlice.reducer },
+  reducer: {
+    auth: authSlice.reducer, 
+    menu: menuSlice.reducer,
+  },
 });

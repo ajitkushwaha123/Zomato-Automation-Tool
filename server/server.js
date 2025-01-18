@@ -4,6 +4,8 @@ import mongoose from "mongoose";
 import user from "./routes/user.routes.js";
 import cookieParser from "cookie-parser";
 import cors from "cors";
+import zomatoRouter from "./routes/zomato.routes.js";
+import gemini from "./routes/gemini.routes.js";
 
 dotenv.config();
 
@@ -50,6 +52,9 @@ mongoose
 app.get("/", (req, res) => {
   res.send("Hello World");
 });
+
+app.use("/api/zomato" , zomatoRouter);
+app.use("/api/gemini" , gemini);
 
 app.use("/api/user", user);
 
