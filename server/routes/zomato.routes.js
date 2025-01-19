@@ -43,8 +43,14 @@ zomatoRouter.post("/data", async (req, res) => {
   try {
     const browser = await puppeteer.connect({
       browserWSEndpoint:
-        // "ws://localhost:9222/devtools/browser/02476bc3-dfe6-430c-a2eb-c2f7bfd91959",
-        `ws://localhost:9222/devtools/browser/${browserEndPoint}`,
+        "ws://127.0.0.1:9222/devtools/browser/6783506a-70e2-4e02-b682-bb5a90b7dd21",
+      defaultViewport: null, // Ensures the browser opens at full size
+      headless: false, // Disables headless mode
+
+      // browserWSEndpoint:
+      // "ws://localhost:9222/devtools/browser/02476bc3-dfe6-430c-a2eb-c2f7bfd91959",
+      // `ws://localhost:9222/devtools/browser/${browserEndPoint}`,
+      // "ws://82.112.237.229:9222/devtools/browser/6ea25377-1583-4ec5-b194-f7e32db834a1",
     });
 
     const page = await browser.newPage();
