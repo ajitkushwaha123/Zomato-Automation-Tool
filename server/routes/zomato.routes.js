@@ -44,7 +44,7 @@ zomatoRouter.post("/data", async (req, res) => {
     const browser = await puppeteer.connect({
       browserWSEndpoint:
         // "ws://localhost:9222/devtools/browser/02476bc3-dfe6-430c-a2eb-c2f7bfd91959",
-        `ws://82.112.237.229:9222/devtools/browser/${browserEndPoint}`,
+        `ws://localhost:9222/devtools/browser/${browserEndPoint}`,
     });
 
     const page = await browser.newPage();
