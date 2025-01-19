@@ -38,11 +38,13 @@ const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 zomatoRouter.post("/data", async (req, res) => {
   const { data , browserEndPoint } = req.body;
+
+  console.log("Data received:", data);
   try {
     const browser = await puppeteer.connect({
       browserWSEndpoint:
         // "ws://localhost:9222/devtools/browser/02476bc3-dfe6-430c-a2eb-c2f7bfd91959",
-        `ws://localhost:9222/devtools/browser/${browserEndPoint}`,
+        `ws://82.112.237.229:9222/devtools/browser/${browserEndPoint}`,
     });
 
     const page = await browser.newPage();
