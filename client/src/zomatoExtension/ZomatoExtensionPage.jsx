@@ -19,6 +19,16 @@ const data = [
     variants: [],
     food_type: "veg",
   },
+  {
+    name: "Cold Coffee",
+    description: "A cup of cold coffee",
+    category: "Beverages",
+    sub_category: "Coffee",
+    base_price: 120,
+    item_type: "Goods",
+    variants: [],
+    food_type: "veg",
+  },
 ];
 
 const ZomatoExtensionPage = () => {

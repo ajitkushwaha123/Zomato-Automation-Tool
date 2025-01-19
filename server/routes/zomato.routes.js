@@ -37,12 +37,12 @@ zomatoRouter.post("/login", async (req, res) => {
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 zomatoRouter.post("/data", async (req, res) => {
-  const { data } = req.body;
-
+  const { data , browserEndPoint } = req.body;
   try {
     const browser = await puppeteer.connect({
       browserWSEndpoint:
-        "ws://localhost:9222/devtools/browser/f418ff90-c53c-4e4b-a64b-d4cf42e6182a",
+        // "ws://localhost:9222/devtools/browser/02476bc3-dfe6-430c-a2eb-c2f7bfd91959",
+        `ws://localhost:9222/devtools/browser/${browserEndPoint}`,
     });
 
     const page = await browser.newPage();
@@ -81,15 +81,15 @@ zomatoRouter.post("/data", async (req, res) => {
 
         await page.waitForSelector("#item-name", { visible: true });
         await page.type("#item-name", name);
-        await delay(1000);
+        await delay(2000);
 
         await page.waitForSelector("#item-description", { visible: true });
         await page.type("#item-description", description);
-        await delay(1000);
+        await delay(2000);
 
         await page.waitForSelector("#item-price", { visible: true });
         await page.type("#item-price", base_price.toString());
-        await delay(1000);
+        await delay(2000);
 
         if (["veg", "non-veg", "egg"].includes(food_type)) {
           await page.waitForSelector(`label[for="${food_type}"]`, {
