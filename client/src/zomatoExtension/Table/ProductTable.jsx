@@ -27,7 +27,7 @@ export const columns = [
   { name: "SUB CATEGORY", uid: "sub_category" },
   { name: "BASE PRCIE", uid: "base_price" },
   { name: "ITEM TYPE", uid: "item_type" }, // GOODS , SERVICES
-  { name: "VARIANTS", uid: "variants" },
+  // { name: "VARIANTS", uid: "variants" },
   { name: "FOOD TYPE", uid: "food_type", sortable: true },
   { name: "ACTIONS", uid: "actions" },
 ];
@@ -39,7 +39,7 @@ const INITIAL_VISIBLE_COLUMNS = [
   "sub_category",
   "base_price",
   "item_type",
-  "variants",
+  // "variants",
   "status",
   "actions",
 ];

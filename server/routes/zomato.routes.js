@@ -2,64 +2,27 @@ import express from "express";
 import puppeteer from "puppeteer";
 
 const zomatoRouter = express.Router();
-
-zomatoRouter.post("/login", async (req, res) => {
-  const { email, password } = req.body;
-
-  const browser = await puppeteer.launch({
-    headless: false,
-    args: ["--no-sandbox", "--disable-setuid-sandbox"],
-    userDataDir: "./zomato-session",
-  });
-
-  const page = await browser.newPage();
-
-  try {
-    await page.goto("https://www.zomato.com/login", {
-      waitUntil: "networkidle2",
-    });
-
-    console.log("Logging in...");
-
-    await page.type("#email", email);
-    await page.type("#password", password);
-    await page.click("#login");
-    await page.waitForNavigation({ waitUntil: "networkidle2" });
-
-    console.log("You are logged in. Ready to automate tasks!");
-  } catch (err) {
-    console.error("Error during login:", err);
-  } finally {
-    await browser.close();
-  }
-});
-
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 zomatoRouter.post("/data", async (req, res) => {
-  const { data , browserEndPoint } = req.body;
+  const { data, browserEndPoint } = req.body;
 
   console.log("Data received:", data);
   try {
     const browser = await puppeteer.connect({
-      browserWSEndpoint:
-        "ws://127.0.0.1:9222/devtools/browser/6783506a-70e2-4e02-b682-bb5a90b7dd21",
-      defaultViewport: null, // Ensures the browser opens at full size
-      headless: false, // Disables headless mode
+      defaultViewport: null,
+      headless: false,
 
-      // browserWSEndpoint:
-      // "ws://localhost:9222/devtools/browser/02476bc3-dfe6-430c-a2eb-c2f7bfd91959",
-      // `ws://localhost:9222/devtools/browser/${browserEndPoint}`,
-      // "ws://82.112.237.229:9222/devtools/browser/6ea25377-1583-4ec5-b194-f7e32db834a1",
+      browserWSEndpoint: `ws://localhost:9222/devtools/browser/${browserEndPoint}`,
     });
 
     const page = await browser.newPage();
     await page.goto(
-      "https://www.zomato.com/partners/onlineordering/menu/?resId=21427240",
+      "https://www.zomato.com/partners/onlineordering/menu/?resId=21270515",
       { waitUntil: "networkidle2" }
     );
 
-    await page.setViewport({ width: 1120, height: 698 });
+    // await page.setViewport({ width: 1120, height: 698 });
 
     await delay(2000);
 
@@ -70,14 +33,19 @@ zomatoRouter.post("/data", async (req, res) => {
     await delay(2000);
 
     for (const item of data) {
-      const { name, description, base_price, food_type } = item;
-      const variants = [
-        {
-          property_name: "Size",
-          values: ["Small", "Medium", "Large"],
-          prices: [100, 200, 300],
-        },
-      ];
+      const { name, description, base_price, variants } = item;
+      let {food_type} = item;
+      
+      if(food_type === "non_veg"){
+        food_type = "non-veg"
+      }
+      // const variants = [
+      //   {
+      //     property_name: "Size",
+      //     values: ["Small", "Medium", "Large"],
+      //     prices: [100, 200, 300],
+      //   },
+      // ];
 
       try {
         await page.waitForSelector('[data-tut="ADD_CATALOGUE"]', {
@@ -89,15 +57,15 @@ zomatoRouter.post("/data", async (req, res) => {
 
         await page.waitForSelector("#item-name", { visible: true });
         await page.type("#item-name", name);
-        await delay(2000);
+        await delay(1000);
 
         await page.waitForSelector("#item-description", { visible: true });
         await page.type("#item-description", description);
-        await delay(2000);
+        await delay(1000);
 
         await page.waitForSelector("#item-price", { visible: true });
         await page.type("#item-price", base_price.toString());
-        await delay(2000);
+        await delay(1000);
 
         if (["veg", "non-veg", "egg"].includes(food_type)) {
           await page.waitForSelector(`label[for="${food_type}"]`, {
@@ -109,15 +77,23 @@ zomatoRouter.post("/data", async (req, res) => {
           throw new Error(`Invalid food type: "${food_type}"`);
         }
 
-        await delay(2000);
+        await delay(3000);
 
-        await page.waitForSelector('button[aria-controls="radix-:r27:"]', {
-          visible: true,
-        });
+        await page.evaluate(() => {
+          const variantBtn = document.evaluate(
+            '//button[.//div[contains(text(), "Variants")]]',
+            document,
+            null,
+            XPathResult.FIRST_ORDERED_NODE_TYPE,
+            null
+          ).singleNodeValue;
 
-        await delay(2000);
-
-        await page.click('button[aria-controls="radix-:r27:"]');
+          if (variantBtn) {
+            variantBtn.click();
+          } else {
+            throw new Error("Add variants button not found.");
+          }
+        })
 
         await delay(2000);
 
@@ -139,7 +115,7 @@ zomatoRouter.post("/data", async (req, res) => {
 
         await delay(2000);
 
-        for (let i = 0; i < variants.length; i++) {
+        for (let i = 0; i < variants?.length; i++) {
           const { property_name, values, prices } = variants[i];
           const propertyValues = values;
 
@@ -171,7 +147,7 @@ zomatoRouter.post("/data", async (req, res) => {
           await page.type(variantNameInputSelector, property_name);
           console.log("Variant name entered.");
 
-          await delay(2000);
+          await delay(1000);
 
           await page.keyboard.press("Enter");
 
@@ -271,12 +247,12 @@ zomatoRouter.post("/data", async (req, res) => {
               throw new Error(`Input element for iteration ${i} not found.`);
             }
 
-            await delay(2000);
+            await delay(1000);
             console.log("prices", prices[i]);
             await inputElements[i].type(prices[i].toString());
           }
 
-          await delay(2000);
+          await delay(1000);
         }
 
         await delay(2000);
@@ -315,36 +291,34 @@ zomatoRouter.post("/data", async (req, res) => {
           }
         });
 
-        await page.waitForSelector('[data-tut="SUBMIT_CHANGES"]', {
-          visible: true,
-        });
-        await page.click('[data-tut="SUBMIT_CHANGES"]');
-
-        await delay(2000);
-
-        await page.evaluate(() => {
-          const confirmButton = document.evaluate(
-            '//button[contains(text(), "Yes, I confirm")]',
-            document,
-            null,
-            XPathResult.FIRST_ORDERED_NODE_TYPE,
-            null
-          ).singleNodeValue;
-
-          if (confirmButton) {
-            confirmButton.click();
-          } else {
-            throw new Error('"Yes, I confirm" button not found.');
-          }
-        });
-
-        await delay(2000);
-
         console.log(`Item "${name}" added successfully.`);
       } catch (err) {
         console.error(`Error adding item "${name}": ${err.message}`);
       }
     }
+
+    await page.waitForSelector('[data-tut="SUBMIT_CHANGES"]', {
+      visible: true,
+    });
+    await page.click('[data-tut="SUBMIT_CHANGES"]');
+
+    await delay(2000);
+
+    await page.evaluate(() => {
+      const confirmButton = document.evaluate(
+        '//button[contains(text(), "Yes, I confirm")]',
+        document,
+        null,
+        XPathResult.FIRST_ORDERED_NODE_TYPE,
+        null
+      ).singleNodeValue;
+
+      if (confirmButton) {
+        confirmButton.click();
+      } else {
+        throw new Error('"Yes, I confirm" button not found.');
+      }
+    });
 
     res.status(200).send("Data received and processed successfully!");
   } catch (err) {

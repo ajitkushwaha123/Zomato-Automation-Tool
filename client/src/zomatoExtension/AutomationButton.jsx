@@ -17,11 +17,12 @@ const AutomationButton = ({ data }) => {
     base_price,
     food_type,
     item_type,
+    variants,
   }) => {
     try {
       const response = await axios.post(`${API_URL}/zomato/data`, {
         data,
-        browserEndPoint: "6783506a-70e2-4e02-b682-bb5a90b7dd21",
+        browserEndPoint: "85e7e3ca-a2dd-4f2a-85f6-3c4447ed8c51",
       });
 
       console.log(response.data);

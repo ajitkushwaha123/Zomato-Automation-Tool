@@ -30,7 +30,6 @@ export const handleMenuUpload = createAsyncThunk(
   }
 );
 
-
 const menuSlice = createSlice({
   name: "menu",
   initialState: {
@@ -39,7 +38,11 @@ const menuSlice = createSlice({
     isLoading: false,
     error: null,
   },
-  reducers: {},
+  reducers: {
+    updateMenuData: (state, action) => {
+      state.menuData = action.payload;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(handleMenuUpload.pending, (state) => {
@@ -71,5 +74,5 @@ const menuSlice = createSlice({
   },
 });
 
-
+export const { updateMenuData } = menuSlice.actions
 export default menuSlice;

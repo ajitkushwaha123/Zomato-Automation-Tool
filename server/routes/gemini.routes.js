@@ -9,6 +9,30 @@ dotenv.config();
 const gemini = express.Router();
 const genAI = new GoogleGenerativeAI(process.env.Gemini_API_KEY);
 
+const extractValidJsonObjects = (incompleteJson) => {
+  let trimmedResponse = incompleteJson.trim();
+  const validObjects = [];
+  let currentObject = "";
+  let braceCount = 0;
+
+  for (const char of trimmedResponse) {
+    currentObject += char;
+    if (char === "{") braceCount++;
+    if (char === "}") braceCount--;
+
+    if (braceCount === 0 && currentObject.trim()) {
+      try {
+        validObjects.push(JSON.parse(currentObject));
+        currentObject = "";
+      } catch {
+        currentObject = "";
+      }
+    }
+  }
+
+  return validObjects;
+};
+
 gemini.post("/upload-menu", upload.single("menu"), async (req, res) => {
   console.log("Request Body:", req.body);
   console.log("Request File:", req.file);
@@ -50,18 +74,19 @@ gemini.post("/upload-menu", upload.single("menu"), async (req, res) => {
 
     // Define the prompt
     const prompt = `
-      !important: The response must strictly be in a JavaScript array format. The data must follow the required structure with the following fields: 
-      - name
-      - description
+      !important: Add variants for the bottom products as well, if mentioned. Import variants carefully and strictly follow the pattern. The response must be strictly in JavaScript array format. The data must follow the required structure with the following fields:
+      - name // for non-veg category try adding something non-veg in title & description it can be chicken mutton
+      - description // shoud be different from title for non-veg category try adding meet type name in the description "chicken" , "mutton"
       - category (capitalize the first letter)
       - sub_category
-      - base_price
+      - base_price (must be equal to lowest variant price if variants are present else provide simple product price)
       - item_type (Goods or Service)
-      - variants (array of objects in the format: [{ "variant_name": "string", "price": int }])
+      - variants (array of objects in the format: [{ "property_name" : "string", "prices": ["int", "int", ...], "values": ["small", "medium", ...] }]) - variants size must be 1 and values.length == prices.length.
       - food_type
 
-      Ensure all fields are fully filled, except "Variants" which can be left empty for some products. 
-      Do not add comments, notes, or any additional information—only provide the array data.
+      Add dummy data if something is missing.
+
+      Ensure all fields are fully filled, except for "Variants", which can be left empty for some products. Do not add comments, notes, or any additional information—only provide the array data.
 
       Extract the product details from the menu and return them as a JavaScript array of objects. For example:
       [
@@ -72,13 +97,15 @@ gemini.post("/upload-menu", upload.single("menu"), async (req, res) => {
           sub_category: "Subcategory",
           base_price: 100, 
           item_type: "service" // Default if not provided
-          variants: [{ "variant_name": "Small", "price": 50 }, { "variant_name": "Large", "price": 80 }],
-          food_type: "veg" (String) ,  optiond (stricly fill this options only take care of case as well) => {"veg" , "non_veg" , "egg"}// Add Yourself if not provided
-        }, ...
+          variants: [{ property_name : "Size", values : ["Small", "Medium", "Large"], prices: [100, 200, 300] }] // If variants are provided, add them in this format.
+          food_type: "veg" // (String) - options: {"veg", "non_veg", "egg"} // Add yourself if not provided
+        },
+        ...
       ];
 
       Ensure all fields are completed accurately. Use your knowledge to fill in missing product details, but exclude variants if they are not explicitly mentioned in the menu/image/PDF.
-    `;
+`;
+
 
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
     const result = await model.generateContent([prompt, image]);
@@ -90,50 +117,16 @@ gemini.post("/upload-menu", upload.single("menu"), async (req, res) => {
     }
 
     const responseText = result.response.text();
+
     console.log("Original Response:", responseText);
 
-    if (responseText.includes("[")) {
-      let trimmedResponse = responseText.substring(responseText.indexOf("["));
+    const parsedProducts = extractValidJsonObjects(responseText);
+    console.log(parsedProducts);
 
-      const lastValidIndex = trimmedResponse.lastIndexOf("]");
-
-      if (lastValidIndex === -1) {
-        trimmedResponse += "]";
-      } else {
-        trimmedResponse = trimmedResponse.substring(0, lastValidIndex + 1);
-      }
-
-      const openBrackets = (trimmedResponse.match(/\[/g) || []).length;
-      const closeBrackets = (trimmedResponse.match(/]/g) || []).length;
-
-      if (openBrackets > closeBrackets) {
-        trimmedResponse += "]".repeat(openBrackets - closeBrackets);
-      }
-
-      try {
-        const parsedData = JSON.parse(trimmedResponse);
-
-        const product = [];
-        for (let i = 0; i < parsedData.length; i++) {
-          product.push(parsedData[i]);
-        }
-
-        console.log("Parsed Data:", product);
-
-        return res.status(200).json({
-          data: parsedData,
-          message: "Menu data processed successfully.",
-        });
-      } catch (error) {
-        return res.status(400).send({
-          error: "Invalid response format. Could not parse data.",
-        });
-      }
-    } else {
-      return res.status(400).send({
-        error: "Response does not contain a valid array structure.",
-      });
-    }
+    return res.status(200).json({
+      data: parsedProducts,
+      message: "Menu data processed successfully.",
+    });
   } catch (err) {
     console.error("Processing Error:", err);
     return res.status(500).send({
@@ -146,18 +139,22 @@ gemini.post("/update-menu", async (req, res) => {
   const { data, input } = req.body;
 
   try {
-    if (!data || !Array.isArray(data) || data.length === 0) {
-      return res
-        .status(400)
-        .send({
-          error: "Invalid data format. 'data' must be a non-empty array.",
-        });
+    if (!data || data.length === 0) {
+      return res.status(400).send({
+        error: "Invalid data format. 'data' must be a non-empty array.",
+      });
     }
 
     const prompt = input;
 
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-    const result = await model.generateContent(prompt + "\n" + "update the provided data based on my prompt" + "\n" + JSON.stringify(data));
+    const result = await model.generateContent(
+      prompt +
+        "\n" +
+        "update the provided data based on my prompt" +
+        "\n" +
+        JSON.stringify(data)
+    );
 
     if (!result || !result.response?.text) {
       return res.status(500).send({
@@ -166,44 +163,15 @@ gemini.post("/update-menu", async (req, res) => {
     }
 
     const responseText = result.response.text();
-
     console.log("Original Response:", responseText);
 
-    if (responseText.includes("[")) {
-      let trimmedResponse = responseText.substring(responseText.indexOf("["));
-      const lastValidIndex = trimmedResponse.lastIndexOf("]");
+    const parsedProducts = extractValidJsonObjects(responseText);
+    console.log(parsedProducts);
 
-      if (lastValidIndex === -1) {
-        trimmedResponse += "]";
-      } else {
-        trimmedResponse = trimmedResponse.substring(0, lastValidIndex + 1);
-      }
-
-      const openBrackets = (trimmedResponse.match(/\[/g) || []).length;
-      const closeBrackets = (trimmedResponse.match(/]/g) || []).length;
-
-      if (openBrackets > closeBrackets) {
-        trimmedResponse += "]".repeat(openBrackets - closeBrackets);
-      }
-
-      try {
-        const parsedData = JSON.parse(trimmedResponse);
-        console.log("Parsed Data:", parsedData);
-
-        return res.status(200).json({
-          data: parsedData,
-          message: "Menu data processed successfully.",
-        });
-      } catch (error) {
-        return res.status(400).send({
-          error: "Invalid response format. Could not parse data.",
-        });
-      }
-    } else {
-      return res.status(400).send({
-        error: "Response does not contain a valid array structure.",
-      });
-    }
+    return res.status(200).json({
+      data: parsedProducts,
+      message: "Menu data processed successfully.",
+    });
   } catch (err) {
     return res.status(500).send({
       error: `Error during processing: ${err.message}`,

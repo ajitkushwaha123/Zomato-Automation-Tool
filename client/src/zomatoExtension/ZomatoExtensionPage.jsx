@@ -6,30 +6,48 @@ import { motion } from "framer-motion";
 import { useNavigate, Link } from "react-router-dom";
 import ProductTable from "../zomatoExtension/Table/ProductTable";
 import AutomationButton from "./AutomationButton";
-import { handleMenuUpload } from "../redux/slices/productSlice";
+import { handleMenuUpload, updateMenuData } from "../redux/slices/productSlice";
+import { JsonData } from "./JsonData";
+import CodeEditor from "./CodeEditor";
 
-const data = [
-  {
-    name: "Hot Coffee",
-    description: "A cup of hot coffee",
-    category: "Beverages",
-    sub_category: "Coffee",
-    base_price: 120,
-    item_type: "Goods",
-    variants: [],
-    food_type: "veg",
-  },
-  {
-    name: "Cold Coffee",
-    description: "A cup of cold coffee",
-    category: "Beverages",
-    sub_category: "Coffee",
-    base_price: 120,
-    item_type: "Goods",
-    variants: [],
-    food_type: "veg",
-  },
-];
+// const data = [
+//   {
+//     name: "Hot Tea",
+//     description: "A cup of hot tea",
+//     category: "Beverages",
+//     sub_category: "Tea",
+//     base_price: 100,
+//     item_type: "Goods",
+//     variants: [{ property_name: "Size", values: ["Small"], prices : [100] }],
+//     food_type: "veg",
+//   },
+//   {
+//     name: "Cold Coffee",
+//     description: "A cup of cold coffee",
+//     category: "Beverages",
+//     sub_category: "Coffee",
+//     base_price: 120,
+//     item_type: "Goods",
+//     variants: [],
+//     food_type: "veg",
+//   },
+//   {
+//     name: "Hot Coffee",
+//     description: "A cup of hot coffee",
+//     category: "Beverages",
+//     sub_category: "Coffee",
+//     base_price: 120,
+//     item_type: "Goods",
+//     variants: [
+//       {
+//         property_name: "Size",
+//         values: ["Small", "Medium", "Large"],
+//         prices : [250, 300, 350],
+//       },
+//     ],
+//     food_type: "veg",
+//   },
+// ];
 
 const ZomatoExtensionPage = () => {
   const dispatch = useDispatch();
@@ -78,6 +96,11 @@ const ZomatoExtensionPage = () => {
         <span className="ml-2">{isLoading ? "Loading..." : "Upload"}</span>
       </motion.button>
 
+      {/* <JsonData /> */}
+      <CodeEditor code={menuData}/>
+
+      {/* <div>  </div> */}
+
       {message && <div className="mt-4 text-slate-200">{message}</div>}
 
       <div className="pt-20 pb-8 flex flex-col justify-center items-center w-full">
@@ -85,7 +108,7 @@ const ZomatoExtensionPage = () => {
           <ProductTable users={menuData} />
         </div>
 
-        <AutomationButton data={data} />
+        <AutomationButton data={menuData} />
 
         <Link to={`/menu`}>
           <motion.button
