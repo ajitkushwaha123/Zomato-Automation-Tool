@@ -1,8 +1,15 @@
 import express from "express";
 import puppeteer from "puppeteer";
+import axios from "axios";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 
 const zomatoRouter = express.Router();
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 zomatoRouter.post("/data", async (req, res) => {
   const { data, browserEndPoint } = req.body;
@@ -18,7 +25,7 @@ zomatoRouter.post("/data", async (req, res) => {
 
     const page = await browser.newPage();
     await page.goto(
-      "https://www.zomato.com/partners/onlineordering/menu/?resId=21270515",
+      "https://www.zomato.com/partners/onlineordering/menu/?resId=21699674",
       { waitUntil: "networkidle2" }
     );
 
@@ -33,19 +40,35 @@ zomatoRouter.post("/data", async (req, res) => {
     await delay(2000);
 
     for (const item of data) {
-      const { name, description, base_price, variants } = item;
-      let {food_type} = item;
-      
-      if(food_type === "non_veg"){
-        food_type = "non-veg"
+      const {
+        name,
+        description,
+        base_price,
+        // variants,
+        img,
+      } = item;
+      let { food_type } = item;
+
+      if (food_type === "non_veg") {
+        food_type = "non-veg";
       }
-      // const variants = [
-      //   {
-      //     property_name: "Size",
-      //     values: ["Small", "Medium", "Large"],
-      //     prices: [100, 200, 300],
-      //   },
-      // ];
+      const variants = [
+        {
+          property_name: "Size",
+          // values: ["Small", "Medium", "Large"],
+          // prices: [100, 200, 300],
+          values: [
+            {
+              title: "Small",
+              price: 100,
+            },
+            {
+              title: "Medium",
+              price: 200,
+            },
+          ],
+        },
+      ];
 
       try {
         await page.waitForSelector('[data-tut="ADD_CATALOGUE"]', {
@@ -77,6 +100,96 @@ zomatoRouter.post("/data", async (req, res) => {
           throw new Error(`Invalid food type: "${food_type}"`);
         }
 
+        const imageUrl = img || "";
+
+        if (imageUrl) {
+          await delay(3000);
+          await page.evaluate(() => {
+            const imageBtn = document.evaluate(
+              '//div[contains(text(), "Upload")]',
+              document,
+              null,
+              XPathResult.FIRST_ORDERED_NODE_TYPE,
+              null
+            ).singleNodeValue;
+
+            if (imageBtn) {
+              imageBtn.click();
+            } else {
+              throw new Error("Image button not found.");
+            }
+          });
+
+          await delay(2000);
+
+          await page.evaluate(() => {
+            const imageBtn = document.evaluate(
+              '//button[contains(text(), "Continue")]',
+              document,
+              null,
+              XPathResult.FIRST_ORDERED_NODE_TYPE,
+              null
+            ).singleNodeValue;
+
+            if (imageBtn) {
+              imageBtn.click();
+            } else {
+              throw new Error("Image button not found.");
+            }
+          });
+
+          await delay(2000);
+
+          const fileInputSelector = "#image-input"; // Target by ID
+          await page.waitForSelector(fileInputSelector);
+
+          const imagesFolderPath = path.resolve(__dirname, "images");
+          if (!fs.existsSync(imagesFolderPath)) {
+            fs.mkdirSync(imagesFolderPath);
+          }
+
+          const localImagePath = path.resolve(
+            imagesFolderPath,
+            "downloaded-image.jpg"
+          );
+          const response = await axios({
+            url: imageUrl,
+            method: "GET",
+            responseType: "stream",
+          });
+          const writer = fs.createWriteStream(localImagePath);
+          response.data.pipe(writer);
+          await new Promise((resolve, reject) => {
+            writer.on("finish", resolve);
+            writer.on("error", reject);
+          });
+
+          // const filePath = `C:/Users/Aakash/Desktop/Auth/server/uploads/image.png`;
+
+          // Upload the file directly to the hidden input
+          const fileInput = await page.$(fileInputSelector);
+          console.log("fileInput", fileInput);
+          await fileInput.uploadFile(localImagePath);
+
+          await delay(4000);
+
+          await page.evaluate(() => {
+            const imageBtn = document.evaluate(
+              '//button[contains(text(), "Map image")]',
+              document,
+              null,
+              XPathResult.FIRST_ORDERED_NODE_TYPE,
+              null
+            ).singleNodeValue;
+
+            if (imageBtn) {
+              imageBtn.click();
+            } else {
+              throw new Error("Image button not found.");
+            }
+          });
+        }
+
         await delay(3000);
 
         await page.evaluate(() => {
@@ -93,7 +206,7 @@ zomatoRouter.post("/data", async (req, res) => {
           } else {
             throw new Error("Add variants button not found.");
           }
-        })
+        });
 
         await delay(2000);
 
@@ -116,7 +229,7 @@ zomatoRouter.post("/data", async (req, res) => {
         await delay(2000);
 
         for (let i = 0; i < variants?.length; i++) {
-          const { property_name, values, prices } = variants[i];
+          const { property_name, values } = variants[i];
           const propertyValues = values;
 
           await page.evaluate(() => {
@@ -188,7 +301,7 @@ zomatoRouter.post("/data", async (req, res) => {
               throw new Error(`Input element for iteration ${i} not found.`);
             }
 
-            await inputElements[i].type(propertyValues[i]);
+            await inputElements[i].type(propertyValues[i].title);
 
             await delay(2000);
 
@@ -248,8 +361,8 @@ zomatoRouter.post("/data", async (req, res) => {
             }
 
             await delay(1000);
-            console.log("prices", prices[i]);
-            await inputElements[i].type(prices[i].toString());
+            console.log("prices", propertyValues[i].price);
+            await inputElements[i].type(propertyValues[i].price.toString());
           }
 
           await delay(1000);
@@ -297,6 +410,7 @@ zomatoRouter.post("/data", async (req, res) => {
       }
     }
 
+    // return res.status(200).send("Data received and processed successfully!");
     await page.waitForSelector('[data-tut="SUBMIT_CHANGES"]', {
       visible: true,
     });

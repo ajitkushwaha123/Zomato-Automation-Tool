@@ -1,27 +1,24 @@
+import { input } from "@nextui-org/theme";
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
 const API_URL = `${import.meta.env.VITE_API_URL}/api`;
 
+// AsyncThunk for uploading the menu
 export const handleMenuUpload = createAsyncThunk(
   "product/handleMenuUpload",
   async (formData, thunkAPI) => {
-    formData.forEach((value, key) => {
-      console.log(`${key}:`, value);
-    });
     try {
+      formData.forEach((value, key) => console.log(`${key}:`, value));
       const response = await axios.post(
         `${API_URL}/gemini/upload-menu`,
         formData,
         {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
+          headers: { "Content-Type": "multipart/form-data" },
         }
       );
-
-      console.log("response" , response.data.data);
-      return response?.data;
+      console.log("response", response.data.data);
+      return response?.data || {};
     } catch (error) {
       return thunkAPI.rejectWithValue(
         error.response?.data?.message || "Failed to upload menu"
@@ -30,6 +27,57 @@ export const handleMenuUpload = createAsyncThunk(
   }
 );
 
+// AsyncThunk for scraping data
+export const handleScrapeData = createAsyncThunk(
+  "product/handleScrapeData",
+  async (_, thunkAPI) => {
+    try {
+      const response = await axios.get(`${API_URL}/scrape`);
+      // const products =
+      //   response.data?.data?.map((item, index) => {
+      //     const { catalogue, variantWrappers } = item;
+      //     const { price } = variantWrappers[0]?.variantPrices[0] || {};
+      //     const { name, description, imageUrl } = catalogue;
+
+      //     return {
+      //       id: index,
+      //       name,
+      //       description,
+      //       img: imageUrl,
+      //       base_price: price,
+      //       // category : catalogue.dishAttributes[0]?.dishtype
+      //     };
+      //   }) || [];
+      // console.log("products", products);
+      return response?.data?.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.message || "Failed to scrape data"
+      );
+    }
+  }
+);
+
+// AsyncThunk for updating menu using AI
+export const handleMenuAIUpdate = createAsyncThunk(
+  "product/handleMenuAIUpdate",
+  async ({ productData, input }, thunkAPI) => {
+    try {
+      const response = await axios.post(`${API_URL}/gemini/update-menu`, {
+        data: productData,
+        input,
+      });
+      console.log("response", response?.data);
+      return response?.data?.data || [];
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.message || "Failed to update menu"
+      );
+    }
+  }
+);
+
+// Menu slice
 const menuSlice = createSlice({
   name: "menu",
   initialState: {
@@ -42,6 +90,29 @@ const menuSlice = createSlice({
     updateMenuData: (state, action) => {
       state.menuData = action.payload;
     },
+    updateMenuDataById: (state, action) => {
+      const { id, url } = action.payload;
+      const index = state.menuData.findIndex((item) => item.id === id);
+      if (index !== -1) state.menuData[index].img = url;
+    },
+    deleteMenuData: (state, action) => {
+      const { id } = action.payload;
+      state.menuData = state.menuData.filter((item) => item.id !== id);
+    },
+    updateMenuDataPortion: (state, action) => {
+      const updatedItems = action.payload; // Expecting an array of updated items
+
+
+      console.log("updatedItems", updatedItems);
+      updatedItems?.forEach((updatedItem) => {
+        const index = state.menuData.findIndex(
+          (item) => item.id === updatedItem.id
+        );
+        if (index !== -1) {
+          state.menuData[index] = { ...state.menuData[index], ...updatedItem };
+        }
+      });
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -51,28 +122,50 @@ const menuSlice = createSlice({
         state.error = null;
       })
       .addCase(handleMenuUpload.fulfilled, (state, action) => {
-        const { message, error, data } = action.payload;
-
+        const { message, error, data } = action.payload || {};
         state.isLoading = false;
-
-        if (message) {
-          state.message = message;
-        }
-
-        if (error) {
-          state.error = error;
-        }
-
-        if (data) {
-          state.menuData = data;
-        }
+        state.message = message || "";
+        state.error = error || null;
+        if (data) state.menuData = data;
       })
       .addCase(handleMenuUpload.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload || action.error.message;
+      })
+      .addCase(handleScrapeData.pending, (state) => {
+        state.isLoading = true;
+        state.message = "";
+        state.error = null;
+      })
+      .addCase(handleScrapeData.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.menuData = action.payload || [];
+      })
+      .addCase(handleScrapeData.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload || action.error.message;
+      })
+      .addCase(handleMenuAIUpdate.pending, (state) => {
+        state.isLoading = true;
+        state.message = "";
+        state.error = null;
+      })
+      .addCase(handleMenuAIUpdate.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.message = action.payload?.message || "";
+        state.menuData = action.payload || [];
+      })
+      .addCase(handleMenuAIUpdate.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload || action.error.message;
       });
   },
 });
 
-export const { updateMenuData } = menuSlice.actions
+export const {
+  updateMenuData,
+  updateMenuDataById,
+  deleteMenuData,
+  updateMenuDataPortion,
+} = menuSlice.actions;
 export default menuSlice;

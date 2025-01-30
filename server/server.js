@@ -6,6 +6,9 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import zomatoRouter from "./routes/zomato.routes.js";
 import gemini from "./routes/gemini.routes.js";
+import image from "./routes/images.routes.js";
+import search from "./routes/search.routes.js";
+import scrape from "./routes/scrape.route.js";
 
 dotenv.config();
 
@@ -56,7 +59,11 @@ app.get("/", (req, res) => {
 app.use("/api/zomato" , zomatoRouter);
 app.use("/api/gemini" , gemini);
 
+app.use("/api/image" , image);
+app.use("/api/search" , search);
+
 app.use("/api/user", user);
+app.use("/api/scrape" , scrape);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

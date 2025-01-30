@@ -8,6 +8,8 @@ import ForgetPassword from "./Auth/ForgetPassword/ForgetPassword";
 import axios from "axios";
 import ZomatoExtensionPage from "./zomatoExtension/ZomatoExtensionPage";
 import Menu from "./zomatoExtension/Menu";
+import ImageUpload from "./ImageSearch/ImageUpload";
+import MenuView from "./zomatoExtension/MenuView/MenuView";
 
 function App() {
   const openZomato = async ({ name, description, price }) => {
@@ -91,6 +93,8 @@ function App() {
         <Route path="profile" element={<Profile />} />
         <Route path="/zomato" element={<ZomatoExtensionPage />} />
         <Route path="/menu" element={<Menu />} />
+        <Route path="/upload-image" element={<ImageUpload />} />
+        <Route path="/products" element={<MenuView />} />
       </Routes>
     </div>
   );

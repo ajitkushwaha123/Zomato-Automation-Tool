@@ -1,4 +1,5 @@
-import React from "react";
+"use client";
+import React, { useState } from "react";
 import clsx from "clsx";
 import {
   Table,
@@ -18,7 +19,19 @@ import {
   Pagination,
 } from "@nextui-org/react";
 import { dummyIcon } from "../../assets";
+import { useDispatch, useSelector } from "react-redux";
+import ImageModal from "../../ImageSearch/ImageModal";
+import { openModal } from "../../redux/slices/modalSlice";
+import { handleSearchResult } from "../../redux/slices/modalSlice";
+import {
+  deleteMenuData,
+  updateMenuDataPortion,
+} from "../../redux/slices/productSlice";
+import AutomationButton from "../AutomationButton";
+import { InputFieldPlaceholder } from "../../components/ui/InputFieldPlaceholder";
+import axios from "axios";
 
+const API_URL = `${import.meta.env.VITE_API_URL}/api`;
 export const columns = [
   { name: "ID", uid: "id", sortable: true },
   { name: "NAME", uid: "name", sortable: true },
@@ -33,6 +46,7 @@ export const columns = [
 ];
 
 const INITIAL_VISIBLE_COLUMNS = [
+  "id",
   "name",
   "description",
   "category",
@@ -40,7 +54,9 @@ const INITIAL_VISIBLE_COLUMNS = [
   "base_price",
   "item_type",
   // "variants",
+
   "status",
+  "food_type",
   "actions",
 ];
 
@@ -170,7 +186,91 @@ const statusColorMap = {
   egg: "indigo",
 };
 
-export default function ProductTable({ users = [] }) {
+export default function ProductTable({ filters = {} }) {
+  const { menuData, isLoading, message, error } = useSelector(
+    (state) => state.menu
+  );
+
+  const [updatedItems, setUpdatedItems] = useState([]);
+
+  const dispatch = useDispatch();
+  const handleImageState = (e, name, index) => {
+    // alert(name);
+    console.log("name", index);
+    dispatch(openModal({ title: name, id: index }));
+    dispatch(handleSearchResult(name));
+  };
+
+ const filteredData = (menuData, filters) => {
+   if (!Array.isArray(menuData)) {
+     console.error("Data is not an array:", menuData);
+     return []; // Return an empty array if menuData is invalid
+   }
+
+   return menuData.filter((item) => {
+     return Object.keys(filters).every((key) => {
+       const filterValue = filters[key];
+
+       // Skip filtering if filter value is null, undefined, or empty string
+       if (!filterValue) return true;
+
+       // Get the item's value dynamically
+       const itemValue = item[key];
+
+       // Check if itemValue exists and matches filterValue
+       return (
+         itemValue !== undefined &&
+         itemValue !== null &&
+         itemValue
+           .toString()
+           .toLowerCase()
+           .includes(filterValue.toString().toLowerCase())
+       );
+     });
+   });
+ };
+
+
+  const handleAIUpdate = async (filterData, input) => {
+    try {
+      const response = await axios.post(`${API_URL}/gemini/update-menu`, {
+        data: filterData,
+        input,
+      });
+      console.log("response", response?.data);
+      // setUpdatedItems(response?.data?.data || []);
+      dispatch(updateMenuDataPortion(response?.data?.data || []));
+      return response?.data?.data || [];
+    } catch (err) {
+      console.error("Error updating menu", err);
+    }
+  };
+
+  const filterData = filteredData(menuData, filters);
+  const [input, setInput] = useState("");
+
+  const handleInputChange = (e) => {
+    setInput(e.target.value);
+  };
+
+  const placeholder = [
+    "Increase price by 20% ...!",
+    "Re-generate the menu ...!",
+  ];
+
+  const handleMenuUpdate = async () => {
+    await handleAIUpdate(filterData, input);
+  };
+
+  console.log("filterData", filterData);
+
+  const { isOpen, images, title } = useSelector((state) => state.searchModal);
+
+  const handleDelete = (e, id) => {
+    console.log("delete", id);
+    dispatch(deleteMenuData({ id }));
+  };
+
   const [filterValue, setFilterValue] = React.useState("");
   const [selectedKeys, setSelectedKeys] = React.useState(new Set([]));
   const [visibleColumns, setVisibleColumns] = React.useState(
@@ -195,7 +295,7 @@ export default function ProductTable({ users = [] }) {
   }, [visibleColumns]);
 
   const filteredItems = React.useMemo(() => {
-    let filteredUsers = [...users];
+    let filteredUsers = [...filterData];
 
     if (hasSearchFilter) {
       filteredUsers = filteredUsers.filter((user) =>
@@ -212,7 +312,7 @@ export default function ProductTable({ users = [] }) {
     }
 
     return filteredUsers;
-  }, [users, filterValue, statusFilter]);
+  }, [filterData, filterValue, statusFilter]);
 
   const pages = Math.ceil(filteredItems.length / rowsPerPage);
 
@@ -242,16 +342,14 @@ export default function ProductTable({ users = [] }) {
           <User
             avatarProps={{
               radius: "md",
-              src: dummyIcon,
+              src: user?.img || dummyIcon,
               isBordered: true,
               color: "primary",
               className: "mr-1",
             }}
             description={user?.email}
             name={cellValue}
-          >
-            {/* {user?.email} */}
-          </User>
+          ></User>
         );
       case "role":
         return (
@@ -267,7 +365,11 @@ export default function ProductTable({ users = [] }) {
           <div>
             <button
               className={`flex justify-center items-center rounded-full px-2 py-1 ${
-                user.food_type === "non-veg" ? "bg-red-600" : user.food_type === "egg" ? "bg-yellow-600" : "bg-green-600"
+                user.food_type === "non-veg"
+                  ? "bg-red-600"
+                  : user.food_type === "egg"
+                  ? "bg-yellow-600"
+                  : "bg-green-600"
               }`}
               // className={clsx(
               //   `bg-white flex ${
@@ -307,7 +409,7 @@ export default function ProductTable({ users = [] }) {
         return (
           <div
             className={`flex justify-center items-center rounded-full px-2 py-1 ${
-              user.item_type === "goods" ? "bg-blue-600" : "bg-green-600"
+              user.item_type === "Goods" ? "bg-blue-600" : "bg-green-600"
             }`}
           >
             {user.item_type}
@@ -325,7 +427,9 @@ export default function ProductTable({ users = [] }) {
               <DropdownMenu>
                 <DropdownItem key="view">View</DropdownItem>
                 <DropdownItem key="edit">Edit</DropdownItem>
-                <DropdownItem key="delete">Delete</DropdownItem>
+                <DropdownItem key="delete">
+                  <div onClick={(e) => handleDelete(e, user?.id)}>Delete</div>
+                </DropdownItem>
               </DropdownMenu>
             </Dropdown>
           </div>
@@ -438,7 +542,7 @@ export default function ProductTable({ users = [] }) {
         </div>
         <div className="flex justify-between items-center">
           <span className="text-default-400 text-small">
-            Total {users.length} users
+            Total {filterData.length} filterData
           </span>
           <label className="flex items-center text-default-400 text-small">
             Rows per page:
@@ -459,7 +563,7 @@ export default function ProductTable({ users = [] }) {
     statusFilter,
     visibleColumns,
     onRowsPerPageChange,
-    users.length,
+    filterData.length,
     onSearchChange,
     hasSearchFilter,
   ]);
@@ -507,45 +611,60 @@ export default function ProductTable({ users = [] }) {
   }, [selectedKeys, items.length, page, pages, hasSearchFilter]);
 
   return (
-    <Table
-      // isHeaderSticky
-      aria-label="Example table with custom cells, pagination and sorting"
-      bottomContent={bottomContent}
-      bottomContentPlacement="outside"
-      classNames={{
-        wrapper: "max-h-[382px] bg-transparent text-white",
-      }}
-      selectedKeys={selectedKeys}
-      selectionMode="multiple"
-      sortDescriptor={sortDescriptor}
-      topContent={topContent}
-      topContentPlacement="outside"
-      onSelectionChange={setSelectedKeys}
-      onSortChange={setSortDescriptor}
-    >
-      <TableHeader columns={headerColumns}>
-        {(column) => (
-          <TableColumn
-            key={column.uid}
-            align={column.uid === "actions" ? "center" : "start"}
-            allowsSorting={column.sortable}
-          >
-            {column.name}
-          </TableColumn>
-        )}
-      </TableHeader>
-      <TableBody emptyContent={"No users found"} items={sortedItems}>
-        {(item) => (
-          <TableRow
-            className="hover:bg-[#ffffff] hover:rounded-lg hover:text-black"
-            key={item?.name}
-          >
-            {(columnKey) => (
-              <TableCell>{renderCell(item, columnKey)}</TableCell>
-            )}
-          </TableRow>
-        )}
-      </TableBody>
-    </Table>
+    <div className="w-full">
+      <Table
+        // isHeaderSticky
+        aria-label="Example table with custom cells, pagination and sorting"
+        bottomContent={bottomContent}
+        bottomContentPlacement="outside"
+        classNames={{
+          wrapper: "max-h-[382px] bg-transparent text-white",
+        }}
+        selectedKeys={selectedKeys}
+        selectionMode="multiple"
+        sortDescriptor={sortDescriptor}
+        topContent={topContent}
+        topContentPlacement="outside"
+        onSelectionChange={setSelectedKeys}
+        onSortChange={setSortDescriptor}
+      >
+        <TableHeader columns={headerColumns}>
+          {(column) => (
+            <TableColumn
+              key={column.uid}
+              align={column.uid === "actions" ? "center" : "start"}
+              allowsSorting={column.sortable}
+            >
+              {column.name}
+            </TableColumn>
+          )}
+        </TableHeader>
+        <TableBody emptyContent={"No filterData found"} items={sortedItems}>
+          {(item) => (
+            <TableRow
+              className="hover:bg-[#ffffff] hover:rounded-lg hover:text-black"
+              key={item?.id}
+              onClick={(e) => handleImageState(e, item?.name, item?.id)}
+            >
+              {(columnKey) => (
+                <TableCell>{renderCell(item, columnKey)}</TableCell>
+              )}
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
+
+      <AutomationButton data={filterData} />
+
+      <div className="my-10">
+        <InputFieldPlaceholder
+          onChange={handleInputChange}
+          placeholders={placeholder}
+          onSubmit={handleMenuUpdate}
+        />
+      </div>
+
+      {isOpen && <ImageModal open={isOpen} />}
+    </div>
   );
 }

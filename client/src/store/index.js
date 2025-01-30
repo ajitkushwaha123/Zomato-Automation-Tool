@@ -1,6 +1,6 @@
 import { configureStore, createSlice } from "@reduxjs/toolkit";
 import menuSlice from "../redux/slices/productSlice";
-
+import modalSlice from "../redux/slices/modalSlice";
 // Auth slice
 const authSlice = createSlice({
   name: "auth",
@@ -17,12 +17,12 @@ const authSlice = createSlice({
   },
 });
 
-
 export const authActions = authSlice.actions;
 
 export const store = configureStore({
   reducer: {
-    auth: authSlice.reducer, 
+    auth: authSlice.reducer,
     menu: menuSlice.reducer,
+    searchModal: modalSlice.reducer,
   },
 });

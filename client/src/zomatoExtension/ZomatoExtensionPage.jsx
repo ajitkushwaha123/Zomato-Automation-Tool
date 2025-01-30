@@ -6,48 +6,13 @@ import { motion } from "framer-motion";
 import { useNavigate, Link } from "react-router-dom";
 import ProductTable from "../zomatoExtension/Table/ProductTable";
 import AutomationButton from "./AutomationButton";
-import { handleMenuUpload, updateMenuData } from "../redux/slices/productSlice";
+import {
+  handleMenuUpload,
+  handleScrapeData,
+  updateMenuData,
+} from "../redux/slices/productSlice";
 import { JsonData } from "./JsonData";
 import CodeEditor from "./CodeEditor";
-
-// const data = [
-//   {
-//     name: "Hot Tea",
-//     description: "A cup of hot tea",
-//     category: "Beverages",
-//     sub_category: "Tea",
-//     base_price: 100,
-//     item_type: "Goods",
-//     variants: [{ property_name: "Size", values: ["Small"], prices : [100] }],
-//     food_type: "veg",
-//   },
-//   {
-//     name: "Cold Coffee",
-//     description: "A cup of cold coffee",
-//     category: "Beverages",
-//     sub_category: "Coffee",
-//     base_price: 120,
-//     item_type: "Goods",
-//     variants: [],
-//     food_type: "veg",
-//   },
-//   {
-//     name: "Hot Coffee",
-//     description: "A cup of hot coffee",
-//     category: "Beverages",
-//     sub_category: "Coffee",
-//     base_price: 120,
-//     item_type: "Goods",
-//     variants: [
-//       {
-//         property_name: "Size",
-//         values: ["Small", "Medium", "Large"],
-//         prices : [250, 300, 350],
-//       },
-//     ],
-//     food_type: "veg",
-//   },
-// ];
 
 const ZomatoExtensionPage = () => {
   const dispatch = useDispatch();
@@ -56,6 +21,10 @@ const ZomatoExtensionPage = () => {
   const handleFileChange = (file) => {
     console.log("file", file);
     setFile(file);
+  };
+
+  const handleDataScrape = async () => {
+    await dispatch(handleScrapeData({ url: "sd" }));
   };
 
   const handleFileUpload = async () => {
@@ -80,6 +49,14 @@ const ZomatoExtensionPage = () => {
     (state) => state.menu
   );
 
+
+  const filters = {
+    // category: "Breads",
+    // food_type: "non_veg",
+    item_type: "goods",
+    sub_category : "Coffee",
+  };
+
   return (
     <div className="min-h-screen p-20 w-full flex flex-col bg-[#000] items-center justify-center">
       <UploadMenu onUpload={handleFileChange} />
@@ -96,8 +73,20 @@ const ZomatoExtensionPage = () => {
         <span className="ml-2">{isLoading ? "Loading..." : "Upload"}</span>
       </motion.button>
 
+      <motion.button
+        onClick={handleDataScrape}
+        whileTap={{ scale: 0.9 }}
+        className={`inline-flex ${
+          isLoading ? "animate-shimmer" : ""
+        } mt-10 h-12 items-center justify-center rounded-md border border-slate-800 bg-[linear-gradient(110deg,#000103,45%,#1e2631,55%,#000103)] bg-[length:200%_100%] px-6 font-medium text-slate-400 transition-colors duration-200 ease-in-out hover:bg-[linear-gradient(110deg,#000103,45%,#1e2631,55%,#000103)] hover:text-slate-200`}
+        disabled={isLoading}
+      >
+        <CloudUpload />
+        <span className="ml-2">{isLoading ? "Loading..." : "Hello"}</span>
+      </motion.button>
+
       {/* <JsonData /> */}
-      <CodeEditor code={menuData}/>
+      <CodeEditor code={menuData} />
 
       {/* <div>  </div> */}
 

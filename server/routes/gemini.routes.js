@@ -106,7 +106,6 @@ gemini.post("/upload-menu", upload.single("menu"), async (req, res) => {
       Ensure all fields are completed accurately. Use your knowledge to fill in missing product details, but exclude variants if they are not explicitly mentioned in the menu/image/PDF.
 `;
 
-
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
     const result = await model.generateContent([prompt, image]);
 
@@ -123,6 +122,10 @@ gemini.post("/upload-menu", upload.single("menu"), async (req, res) => {
     const parsedProducts = extractValidJsonObjects(responseText);
     console.log(parsedProducts);
 
+    for (let i = 0; i < parsedProducts.length; i++) {
+      parsedProducts[i].id = i + 1;
+    }
+
     return res.status(200).json({
       data: parsedProducts,
       message: "Menu data processed successfully.",
@@ -137,7 +140,8 @@ gemini.post("/upload-menu", upload.single("menu"), async (req, res) => {
 
 gemini.post("/update-menu", async (req, res) => {
   const { data, input } = req.body;
-
+  console.log("Request Body:", req.body);
+  
   try {
     if (!data || data.length === 0) {
       return res.status(400).send({

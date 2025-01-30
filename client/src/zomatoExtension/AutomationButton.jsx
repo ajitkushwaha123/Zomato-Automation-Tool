@@ -22,7 +22,7 @@ const AutomationButton = ({ data }) => {
     try {
       const response = await axios.post(`${API_URL}/zomato/data`, {
         data,
-        browserEndPoint: "85e7e3ca-a2dd-4f2a-85f6-3c4447ed8c51",
+        browserEndPoint: "fba9dea5-b94d-435a-b9dd-950eeb2a5325",
       });
 
       console.log(response.data);

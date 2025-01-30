@@ -5,6 +5,10 @@ import { GridPattern } from "../components/ui/FileUpload";
 import { useDispatch, useSelector } from "react-redux";
 import { InputFieldPlaceholder } from "../components/ui/InputFieldPlaceholder";
 import AutomationButton from "./AutomationButton";
+import { handleMenuAIUpdate } from "../redux/slices/productSlice";
+import { Link } from "react-router-dom";
+import { CloudUpload } from "lucide-react";
+import { motion } from "framer-motion";
 
 const API_URL = `${import.meta.env.VITE_API_URL}/api`;
 
@@ -15,6 +19,7 @@ const Menu = () => {
   );
 
   const [productData, setProductData] = useState(menuData);
+  console.log("productData", productData);
 
   const [input, setInput] = useState("");
 
@@ -28,21 +33,7 @@ const Menu = () => {
   ];
 
   const handleMenuUpdate = async () => {
-    try {
-      const response = await axios.post(`${API_URL}/gemini/update-menu`, {
-        data: productData,
-        input,
-      });
-
-      if (response.data.error) {
-        console.error("Error updating menu", response.data.error);
-      } else {
-        setProductData(response?.data?.data);
-        console.log("Menu updated successfully", response.data);
-      }
-    } catch (error) {
-      console.error("Error updating menu", error);
-    }
+    await dispatch(handleMenuAIUpdate({ productData, input }));
   };
 
   return (
@@ -65,6 +56,19 @@ const Menu = () => {
 
       <div className="w-full flex justify-center mb-10 items-center">
         <AutomationButton data={productData} />
+      </div>
+
+      <div className="flex justify-center items-center w-full mb-10">
+        <Link to={`/products`}>
+          <motion.button
+            whileTap={{ scale: 0.9 }}
+            className={`inline-flex 
+           mt-10 h-12 items-center justify-center rounded-md border border-slate-800 bg-[linear-gradient(110deg,#000103,45%,#1e2631,55%,#000103)] bg-[length:200%_100%] px-6 font-medium text-slate-400 transition-colors duration-200 ease-in-out hover:bg-[linear-gradient(110deg,#000103,45%,#1e2631,55%,#000103)] hover:text-slate-200`}
+          >
+            <CloudUpload />
+            <span className="ml-2">View Detailed Menu</span>
+          </motion.button>
+        </Link>
       </div>
     </div>
   );

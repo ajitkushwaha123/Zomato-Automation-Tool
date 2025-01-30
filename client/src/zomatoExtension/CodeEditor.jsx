@@ -46,7 +46,7 @@ const CodeEditor = ({ code = [] }) => {
       />
       <div className="mt-5">
         <SyntaxHighlighter language="javascript" style={docco} wrapLines>
-          {data}
+          {JSON.stringify(menuData , null , 2)}
         </SyntaxHighlighter>
       </div>
     </div>

@@ -12,3 +12,8 @@ body
   position: relative;
   font-family: "Poppins", sans-serif;
 }
+
+.chalaja::-webkit-scrollbar {
+    display: none;
+}
+
