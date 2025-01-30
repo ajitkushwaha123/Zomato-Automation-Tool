@@ -13,6 +13,11 @@ const __dirname = path.dirname(__filename);
 
 zomatoRouter.post("/data", async (req, res) => {
   const { data, browserEndPoint } = req.body;
+  let sub_category = req.body.sub_category;
+  let category = req.body.category;
+  console.log("Data received:", data);
+  console.log("category", category);
+  console.log("sub_category", sub_category);
 
   console.log("Data received:", data);
   try {
@@ -39,36 +44,160 @@ zomatoRouter.post("/data", async (req, res) => {
     await page.click('[data-tut="GO_TO_MENU_EDITOR"]');
     await delay(2000);
 
+    if (category && !sub_category) {
+      sub_category = category;
+    }
+
+    if (category && sub_category) {
+      await page.waitForSelector('[data-tut="ADD_CATEGORY"]', {
+        visible: true,
+      });
+
+      await page.click('[data-tut="ADD_CATEGORY"]');
+      await delay(2000);
+
+      await page.waitForSelector('[name="categoryName"]', { visible: true });
+      delay(1000);
+      await page.type('[name="categoryName"]', category);
+
+      await delay(2000);
+
+      await page.evaluate(() => {
+        const nextBtn = document.evaluate(
+          '//button[contains(text(), "Next")]',
+          document,
+          null,
+          XPathResult.FIRST_ORDERED_NODE_TYPE,
+          null
+        ).singleNodeValue;
+
+        if (nextBtn) {
+          nextBtn.click();
+        } else {
+          throw new Error("Image button not found.");
+        }
+      });
+
+      await delay(2000);
+
+      await page.waitForSelector('[name="subCategoryName"]', { visible: true });
+      delay(1000);
+      await page.type('[name="subCategoryName"]', sub_category);
+
+      await delay(2000);
+
+      await page.evaluate(() => {
+        const doneBtn = document.evaluate(
+          '//button[contains(text(), "Done")]',
+          document,
+          null,
+          XPathResult.FIRST_ORDERED_NODE_TYPE,
+          null
+        ).singleNodeValue;
+
+        if (doneBtn) {
+          doneBtn.click();
+        } else {
+          throw new Error("Image button not found.");
+        }
+      });
+
+      await delay(2000);
+
+      await page.evaluate(() => {
+        const newItemBtn = document.evaluate(
+          '//button[contains(text(), "Add new item")]',
+          document,
+          null,
+          XPathResult.FIRST_ORDERED_NODE_TYPE,
+          null
+        ).singleNodeValue;
+
+        if (newItemBtn) {
+          newItemBtn.click();
+        } else {
+          throw new Error("Image button not found.");
+        }
+      });
+
+      await delay(2000);
+    }
+
     for (const item of data) {
-      const {
-        name,
-        description,
-        base_price,
-        // variants,
-        img,
-      } = item;
+      const { name, description, base_price, variants, img } = item;
       let { food_type } = item;
+      let itemCategory = item.category;
+      let itemSubCategory = item.sub_category;
+
+      if (itemSubCategory !== sub_category) {
+        await delay(2000);
+
+        sub_category = itemSubCategory;
+
+        await page.evaluate(() => {
+          const addSubCatBtn = document.evaluate(
+            '//button[contains(text(), "Add Subcategory")]',
+            document,
+            null,
+            XPathResult.FIRST_ORDERED_NODE_TYPE,
+            null
+          ).singleNodeValue;
+
+          if (addSubCatBtn) {
+            addSubCatBtn.click();
+          } else {
+            throw new Error("Image button not found.");
+          }
+        });
+
+        await page.waitForSelector('[name="subCategoryName"]', {
+          visible: true,
+        });
+        delay(1000);
+        await page.type('[name="subCategoryName"]', itemSubCategory);
+
+        await delay(2000);
+
+        await page.evaluate(() => {
+          const doneBtn = document.evaluate(
+            '//button[contains(text(), "Done")]',
+            document,
+            null,
+            XPathResult.FIRST_ORDERED_NODE_TYPE,
+            null
+          ).singleNodeValue;
+
+          if (doneBtn) {
+            doneBtn.click();
+          } else {
+            throw new Error("Image button not found.");
+          }
+        });
+
+        await delay(2000);
+
+        await page.evaluate(() => {
+          const newItemBtn = document.evaluate(
+            '//button[contains(text(), "Add new item")]',
+            document,
+            null,
+            XPathResult.FIRST_ORDERED_NODE_TYPE,
+            null
+          ).singleNodeValue;
+
+          if (newItemBtn) {
+            newItemBtn.click();
+          } else {
+            throw new Error("Image button not found.");
+          }
+        });
+
+        await delay(2000);
+      }
 
       if (food_type === "non_veg") {
         food_type = "non-veg";
       }
-      const variants = [
-        {
-          property_name: "Size",
-          // values: ["Small", "Medium", "Large"],
-          // prices: [100, 200, 300],
-          values: [
-            {
-              title: "Small",
-              price: 100,
-            },
-            {
-              title: "Medium",
-              price: 200,
-            },
-          ],
-        },
-      ];
 
       try {
         await page.waitForSelector('[data-tut="ADD_CATALOGUE"]', {

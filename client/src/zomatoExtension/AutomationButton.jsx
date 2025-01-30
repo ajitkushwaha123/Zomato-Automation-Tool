@@ -7,45 +7,42 @@ const API_URL = `${import.meta.env.VITE_API_URL}/api`;
 
 const AutomationButton = ({ data }) => {
   const [isLoading, setIsLoading] = useState(false);
-  console.log("data", data);
 
-  const openZomato = async ({
-    name,
-    description,
-    category,
-    sub_category,
-    base_price,
-    food_type,
-    item_type,
-    variants,
-  }) => {
+  const openZomato = async (data) => {
     try {
       const response = await axios.post(`${API_URL}/zomato/data`, {
         data,
+        category: data[0]?.category,
+        sub_category: data[0]?.sub_category,
         browserEndPoint: "fba9dea5-b94d-435a-b9dd-950eeb2a5325",
       });
 
-      console.log(response.data);
+      console.log("Zomato Response:", response.data);
     } catch (err) {
-      console.error(err);
+      console.error("Zomato API Error:", err);
     }
   };
 
-  const handleFunction = async () => {
+  const handleFunction = async (data) => {
+    if (!data || data.length === 0) {
+      console.error("No data provided!");
+      return;
+    }
+
+    setIsLoading(true);
     try {
-      // for (let i = 0; i < data?.length; i++) {
-      //   console.log(data[i]);
       await openZomato(data);
-      // }
     } catch (err) {
-      console.error(err);
+      console.error("Automation Error:", err);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
     <div>
       <motion.button
-        onClick={() => handleFunction()}
+        onClick={() => handleFunction(data)}
         whileTap={{ scale: 0.9 }}
         className={`inline-flex ${
           isLoading ? "animate-shimmer" : ""
