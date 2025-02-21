@@ -23,6 +23,9 @@ app.use(
       const allowedDomains = [
         /^https:\/\/.*\.magicscale\.in$/,
         "http://localhost:5173",
+        "https://auth-ivory-omega.vercel.app",
+        "https://zomato.magicscale.in",
+        "https://auth.magicscale.in",
       ];
       if (
         allowedDomains.some((pattern) =>
