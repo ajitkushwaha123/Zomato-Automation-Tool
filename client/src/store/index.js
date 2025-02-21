@@ -1,6 +1,8 @@
 import { configureStore, createSlice } from "@reduxjs/toolkit";
 import menuSlice from "../redux/slices/productSlice";
 import modalSlice from "../redux/slices/modalSlice";
+import globalValueSlice from "../redux/slices/globalValueSlice";
+
 // Auth slice
 const authSlice = createSlice({
   name: "auth",
@@ -24,5 +26,6 @@ export const store = configureStore({
     auth: authSlice.reducer,
     menu: menuSlice.reducer,
     searchModal: modalSlice.reducer,
+    globalValue: globalValueSlice,
   },
 });

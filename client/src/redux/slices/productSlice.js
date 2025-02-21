@@ -1,4 +1,4 @@
-import { input } from "@nextui-org/theme";
+
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
@@ -30,25 +30,14 @@ export const handleMenuUpload = createAsyncThunk(
 // AsyncThunk for scraping data
 export const handleScrapeData = createAsyncThunk(
   "product/handleScrapeData",
-  async (_, thunkAPI) => {
+  async (data, thunkAPI) => {
     try {
-      const response = await axios.get(`${API_URL}/scrape`);
-      // const products =
-      //   response.data?.data?.map((item, index) => {
-      //     const { catalogue, variantWrappers } = item;
-      //     const { price } = variantWrappers[0]?.variantPrices[0] || {};
-      //     const { name, description, imageUrl } = catalogue;
+      console.log("resId", data);
+      const response = await axios.get(
+        `${API_URL}/scrape?resId=${data.resIdFrom}&browserEndPoint=${data.browserEndPoint}`
+      );
 
-      //     return {
-      //       id: index,
-      //       name,
-      //       description,
-      //       img: imageUrl,
-      //       base_price: price,
-      //       // category : catalogue.dishAttributes[0]?.dishtype
-      //     };
-      //   }) || [];
-      // console.log("products", products);
+      console.log(response.data);
       return response?.data?.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(
@@ -102,7 +91,6 @@ const menuSlice = createSlice({
     updateMenuDataPortion: (state, action) => {
       const updatedItems = action.payload; // Expecting an array of updated items
 
-
       console.log("updatedItems", updatedItems);
       updatedItems?.forEach((updatedItem) => {
         const index = state.menuData.findIndex(
@@ -140,10 +128,13 @@ const menuSlice = createSlice({
       .addCase(handleScrapeData.fulfilled, (state, action) => {
         state.isLoading = false;
         state.menuData = action.payload || [];
+        state.message =  "Data scraped successfully.";
       })
       .addCase(handleScrapeData.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload || action.error.message;
+        console.log(action);
+        state.message = action.payload || "Failed to scrape data";
       })
       .addCase(handleMenuAIUpdate.pending, (state) => {
         state.isLoading = true;
@@ -152,12 +143,13 @@ const menuSlice = createSlice({
       })
       .addCase(handleMenuAIUpdate.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.message = action.payload?.message || "";
+        state.message = action.payload || "";
         state.menuData = action.payload || [];
       })
       .addCase(handleMenuAIUpdate.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload || action.error.message;
+        state.message = action.payload || "Failed to update menu";
       });
   },
 });

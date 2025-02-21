@@ -4,18 +4,29 @@ import puppeteer from "puppeteer";
 const scrape = express.Router();
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-
 scrape.get("/", async (req, res) => {
   try {
-    const browserEndPoint = "929d7524-0e0a-4830-9733-22344a33cfef";
-    const resId = "21202367";
+    const { resId, browserEndPoint } = req.query;
+    if (!resId) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Restaurant ID is required." });
+    }
+
+    if (!browserEndPoint) {
+      return res
+        .status(400)
+        .json({ success: false, message: "browserEndPoint ID is required." });
+    }
+
+    console.log(resId);
+    console.log(browserEndPoint);
 
     const browser = await puppeteer.connect({
       browserWSEndpoint: `ws://localhost:9222/devtools/browser/${browserEndPoint}`,
       defaultViewport: null,
       headless: false,
     });
-
     const page = await browser.newPage();
     await page.goto(
       `https://www.zomato.com/php/online_ordering/menu_edit?action=get_content_menu&res_id=${resId}`,
@@ -111,11 +122,11 @@ scrape.get("/", async (req, res) => {
       });
 
       variantWrappers.forEach((variant) => {
-        const { variantPrices=[] } = variant;
+        const { variantPrices = [] } = variant;
         variantPrices.forEach((priceObj) => {
           base_price = Math.min(base_price, priceObj.price);
-        })
-      })
+        });
+      });
 
       if (base_price === Infinity) {
         base_price = catalogue?.price || 0;

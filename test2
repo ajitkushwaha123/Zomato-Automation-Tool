@@ -1,444 +1,143 @@
-import express from "express";
-import puppeteer from "puppeteer";
-import axios from "axios";
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
-
-const zomatoRouter = express.Router();
-const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-zomatoRouter.post("/data", async (req, res) => {
-  const { data, browserEndPoint } = req.body;
-
-  console.log("Data received:", data);
-  try {
-    const browser = await puppeteer.connect({
-      defaultViewport: null,
-      headless: false,
-
-      browserWSEndpoint: `ws://localhost:9222/devtools/browser/${browserEndPoint}`,
-    });
-
-    const page = await browser.newPage();
-    await page.goto(
-      "https://www.zomato.com/partners/onlineordering/menu/?resId=21699674",
-      { waitUntil: "networkidle2" }
-    );
-
-    // await page.setViewport({ width: 1120, height: 698 });
-
-    await delay(2000);
-
-    await page.waitForSelector('[data-tut="GO_TO_MENU_EDITOR"]', {
-      visible: true,
-    });
-    await page.click('[data-tut="GO_TO_MENU_EDITOR"]');
-    await delay(2000);
-
-    for (const item of data) {
-      const {
-        name,
-        description,
-        base_price,
-        // variants,
-        img,
-      } = item;
-      let { food_type } = item;
-
-      if (food_type === "non_veg") {
-        food_type = "non-veg";
-      }
-      const variants = [
-        {
-          property_name: "Size",
-          // values: ["Small", "Medium", "Large"],
-          // prices: [100, 200, 300],
-          values: [
-            {
-              title: "Small",
-              price: 100,
-            },
-            {
-              title: "Medium",
-              price: 200,
-            },
-          ],
-        },
-      ];
-
-      try {
-        await page.waitForSelector('[data-tut="ADD_CATALOGUE"]', {
-          visible: true,
-        });
-
-        await page.click('[data-tut="ADD_CATALOGUE"]');
-        await delay(2000);
-
-        await page.waitForSelector("#item-name", { visible: true });
-        await page.type("#item-name", name);
-        await delay(1000);
-
-        await page.waitForSelector("#item-description", { visible: true });
-        await page.type("#item-description", description);
-        await delay(1000);
-
-        await page.waitForSelector("#item-price", { visible: true });
-        await page.type("#item-price", base_price.toString());
-        await delay(1000);
-
-        if (["veg", "non-veg", "egg"].includes(food_type)) {
-          await page.waitForSelector(`label[for="${food_type}"]`, {
-            visible: true,
-          });
-          await page.click(`label[for="${food_type}"]`);
-          console.log(`${food_type} selected.`);
-        } else {
-          throw new Error(`Invalid food type: "${food_type}"`);
-        }
-
-        const imageUrl = img || "";
-
-        if (imageUrl) {
-          await delay(3000);
-          await page.evaluate(() => {
-            const imageBtn = document.evaluate(
-              '//div[contains(text(), "Upload")]',
-              document,
-              null,
-              XPathResult.FIRST_ORDERED_NODE_TYPE,
-              null
-            ).singleNodeValue;
-
-            if (imageBtn) {
-              imageBtn.click();
-            } else {
-              throw new Error("Image button not found.");
-            }
-          });
-
-          await delay(2000);
-
-          await page.evaluate(() => {
-            const imageBtn = document.evaluate(
-              '//button[contains(text(), "Continue")]',
-              document,
-              null,
-              XPathResult.FIRST_ORDERED_NODE_TYPE,
-              null
-            ).singleNodeValue;
-
-            if (imageBtn) {
-              imageBtn.click();
-            } else {
-              throw new Error("Image button not found.");
-            }
-          });
-
-          await delay(2000);
-
-          const fileInputSelector = "#image-input"; // Target by ID
-          await page.waitForSelector(fileInputSelector);
-
-          const imagesFolderPath = path.resolve(__dirname, "images");
-          if (!fs.existsSync(imagesFolderPath)) {
-            fs.mkdirSync(imagesFolderPath);
-          }
-
-          const localImagePath = path.resolve(
-            imagesFolderPath,
-            "downloaded-image.jpg"
-          );
-          const response = await axios({
-            url: imageUrl,
-            method: "GET",
-            responseType: "stream",
-          });
-          const writer = fs.createWriteStream(localImagePath);
-          response.data.pipe(writer);
-          await new Promise((resolve, reject) => {
-            writer.on("finish", resolve);
-            writer.on("error", reject);
-          });
-
-          // const filePath = `C:/Users/Aakash/Desktop/Auth/server/uploads/image.png`;
-
-          // Upload the file directly to the hidden input
-          const fileInput = await page.$(fileInputSelector);
-          console.log("fileInput", fileInput);
-          await fileInput.uploadFile(localImagePath);
-
-          await delay(4000);
-
-          await page.evaluate(() => {
-            const imageBtn = document.evaluate(
-              '//button[contains(text(), "Map image")]',
-              document,
-              null,
-              XPathResult.FIRST_ORDERED_NODE_TYPE,
-              null
-            ).singleNodeValue;
-
-            if (imageBtn) {
-              imageBtn.click();
-            } else {
-              throw new Error("Image button not found.");
-            }
-          });
-        }
-
-        await delay(3000);
-
-        await page.evaluate(() => {
-          const variantBtn = document.evaluate(
-            '//button[.//div[contains(text(), "Variants")]]',
-            document,
-            null,
-            XPathResult.FIRST_ORDERED_NODE_TYPE,
-            null
-          ).singleNodeValue;
-
-          if (variantBtn) {
-            variantBtn.click();
-          } else {
-            throw new Error("Add variants button not found.");
-          }
-        });
-
-        await delay(2000);
-
-        await page.evaluate(() => {
-          const addVariants = document.evaluate(
-            '//button[.//div[contains(text(), "Create a new variant")]]',
-            document,
-            null,
-            XPathResult.FIRST_ORDERED_NODE_TYPE,
-            null
-          ).singleNodeValue;
-
-          if (addVariants) {
-            addVariants.click();
-          } else {
-            throw new Error("Add Variants button not found.");
-          }
-        });
-
-        await delay(2000);
-
-        for (let i = 0; i < variants?.length; i++) {
-          const { property_name, values } = variants[i];
-          const propertyValues = values;
-
-          await page.evaluate(() => {
-            const addProperty = document.evaluate(
-              '//button[.//div[contains(text(), "Add new property")]]',
-              document,
-              null,
-              XPathResult.FIRST_ORDERED_NODE_TYPE,
-              null
-            ).singleNodeValue;
-
-            if (addProperty) {
-              addProperty.click();
-            } else {
-              throw new Error("Add Property button not found.");
-            }
-          });
-
-          await delay(2000);
-
-          const variantNameInputSelector =
-            'input[placeholder="Enter variant name E.g. Size, crust, "]';
-
-          console.log("var", variantNameInputSelector);
-          await page.waitForSelector(variantNameInputSelector, {
-            visible: true,
-          });
-          await page.type(variantNameInputSelector, property_name);
-          console.log("Variant name entered.");
-
-          await delay(1000);
-
-          await page.keyboard.press("Enter");
-
-          await delay(2000);
-
-          console.log(`Add new ${property_name}`);
-
-          await page.evaluate((property_name) => {
-            const addPropertyVariants = document.evaluate(
-              `//button[.//div[contains(text(), 'Add new ${property_name}')]]`,
-              document,
-              null,
-              XPathResult.FIRST_ORDERED_NODE_TYPE,
-              null
-            ).singleNodeValue;
-
-            if (addPropertyVariants) {
-              addPropertyVariants.click();
-            } else {
-              throw new Error("Add Property variants button not found.");
-            }
-          }, property_name);
-
-          await delay(2000);
-          for (let i = 0; i < propertyValues?.length; i++) {
-            await page.waitForSelector(
-              'input[placeholder="Enter your base variant, Eg: small"][autocomplete="off"]',
-              { visible: true }
-            );
-
-            const inputElements = await page.$$(
-              'input[placeholder="Enter your base variant, Eg: small"][autocomplete="off"]'
-            );
-
-            console.log("inputElements", inputElements);
-
-            if (!inputElements[i]) {
-              throw new Error(`Input element for iteration ${i} not found.`);
-            }
-
-            await inputElements[i].type(propertyValues[i].title);
-
-            await delay(2000);
-
-            if (i < propertyValues.length - 1) {
-              await page.evaluate((property_name) => {
-                const addPropertyVariants = document.evaluate(
-                  `//button[.//div[contains(text(), 'Add new ${property_name}')]]`,
-                  document,
-                  null,
-                  XPathResult.FIRST_ORDERED_NODE_TYPE,
-                  null
-                ).singleNodeValue;
-
-                if (addPropertyVariants) {
-                  addPropertyVariants.click();
-                } else {
-                  throw new Error("Add Property Variants button not found.");
-                }
-              }, property_name);
-            } else {
-              await page.evaluate(() => {
-                const enterPrice = document.evaluate(
-                  '//button[contains(text(), "Enter prices and review")]',
-                  document,
-                  null,
-                  XPathResult.FIRST_ORDERED_NODE_TYPE,
-                  null
-                ).singleNodeValue;
-
-                if (enterPrice) {
-                  enterPrice.click();
-                } else {
-                  throw new Error("Enter Price button not found.");
-                }
-              });
-            }
-          }
-
-          await delay(2000);
-
-          await page.waitForSelector(
-            'input[variantpriceid="variantPriceInputField"]',
-            {
-              visible: true,
-            }
-          );
-
-          const inputElements = await page.$$(
-            'input[variantpriceid="variantPriceInputField"]'
-          );
-
-          console.log("inputElements", inputElements);
-
-          for (let i = 0; i < inputElements.length; i++) {
-            if (!inputElements[i]) {
-              throw new Error(`Input element for iteration ${i} not found.`);
-            }
-
-            await delay(1000);
-            console.log("prices", propertyValues[i].price);
-            await inputElements[i].type(propertyValues[i].price.toString());
-          }
-
-          await delay(1000);
-        }
-
-        await delay(2000);
-
-        await page.evaluate(() => {
-          const enterPrice = document.evaluate(
-            '//button[contains(text(), "Save")]',
-            document,
-            null,
-            XPathResult.FIRST_ORDERED_NODE_TYPE,
-            null
-          ).singleNodeValue;
-
-          if (enterPrice) {
-            enterPrice.click();
-          } else {
-            throw new Error("Save variants button not found.");
-          }
-        });
-
-        await delay(2000);
-
-        await page.evaluate(() => {
-          const saveButton = document.evaluate(
-            '//button[contains(text(), "Save Changes")]',
-            document,
-            null,
-            XPathResult.FIRST_ORDERED_NODE_TYPE,
-            null
-          ).singleNodeValue;
-
-          if (saveButton) {
-            saveButton.click();
-          } else {
-            throw new Error("Save Changes button not found.");
-          }
-        });
-
-        console.log(`Item "${name}" added successfully.`);
-      } catch (err) {
-        console.error(`Error adding item "${name}": ${err.message}`);
-      }
+[
+    {
+        "domain": ".zomato.com",
+        "expirationDate": 1739122037.024621,
+        "hostOnly": false,
+        "httpOnly": false,
+        "name": "csrf",
+        "path": "/",
+        "sameSite": null,
+        "secure": true,
+        "session": false,
+        "storeId": null,
+        "value": "1c1fdcaaf64455ce4560b1194a685232"
+    },
+    {
+        "domain": ".zomato.com",
+        "expirationDate": 1770469036.264744,
+        "hostOnly": false,
+        "httpOnly": true,
+        "name": "zat",
+        "path": "/",
+        "sameSite": null,
+        "secure": true,
+        "session": false,
+        "storeId": null,
+        "value": "HiSJqg7GcCX-XVeYhREFkBiCr3TM_CqOh8eQ-GMyLp8.4wGK8uEssR_bR8fXNup6l4HmDu6BsiEoiYFgOXHhxSw"
+    },
+    {
+        "domain": ".zomato.com",
+        "expirationDate": 1751880676.578744,
+        "hostOnly": false,
+        "httpOnly": false,
+        "name": "fbcity",
+        "path": "/",
+        "sameSite": null,
+        "secure": true,
+        "session": false,
+        "storeId": null,
+        "value": "1"
+    },
+    {
+        "domain": ".www.zomato.com",
+        "hostOnly": false,
+        "httpOnly": false,
+        "name": "G_AUTHUSER_H",
+        "path": "/partners",
+        "sameSite": null,
+        "secure": true,
+        "session": true,
+        "storeId": null,
+        "value": "0"
+    },
+    {
+        "domain": ".zomato.com",
+        "expirationDate": 1770571638.925585,
+        "hostOnly": false,
+        "httpOnly": false,
+        "name": "_abck",
+        "path": "/",
+        "sameSite": null,
+        "secure": true,
+        "session": false,
+        "storeId": null,
+        "value": "3ED39E5C3DAF70ED681D14F90AC1D092~-1~YAAQXGw/F23cFKyUAQAAkACa5g3ythdJkTDLKNwO0bnkR2OJV8lleAxO+6yt1E+8VUy7ItHvVLTcqFEJctNdhp+LhzLS06rndIYd1vAUrf9jR6nwfRySsw5o4r9M21mrddCmg9AiJiJbqfpvduYJDDQHSantZjAW0536CxRLQDRtxiwr//jlbo/eH9AwvBnuymvOPzoV6oBDeQw0h+fNjuGh2Z0jjC8tM7c1hNwZW7CXsB0DNN5RqFVDLDSizSi8DgkV9GL0QUqr7DOlDAFYk6D7p6bfuapNWoTikOFn8+AOxczEoxawUD7bQOuH6ctaTGYlXKrMUGqlt4yY/Nk017x9zftHROP9jB9gfrD0/IlmRQPG20WtLnhE9JUDeP+3G7w6usYO7FdefqDMusUFFwmN4xROYM5QerobK/ApMZHq7Ml/PI/dWAeI3bCQJ2ACAUm5GAZ2ilrK+G96JoGPrmgL~-1~-1~-1"
+    },
+    {
+        "domain": ".zomato.com",
+        "expirationDate": 1751880676.578796,
+        "hostOnly": false,
+        "httpOnly": false,
+        "name": "zl",
+        "path": "/",
+        "sameSite": null,
+        "secure": true,
+        "session": false,
+        "storeId": null,
+        "value": "en"
+    },
+    {
+        "domain": "www.zomato.com",
+        "expirationDate": 1739648540.377184,
+        "hostOnly": true,
+        "httpOnly": false,
+        "name": "AWSALBTGCORS",
+        "path": "/",
+        "sameSite": "no_restriction",
+        "secure": true,
+        "session": false,
+        "storeId": null,
+        "value": "2FHSvuRTGY4duYxjfo+sURLMSemYQHibkBxcN2ggRFeLntsAbqbEPpYS5ZNIzyFXFytR9B0ReVheyseC521/BSwfNeICpHq1Sr6D+YQiarb/dsquhTp9qt81c0y2aPAPc3QKO4QTuhhNfIWNPuob4RlVNkP67H7Wof+Z2tmgTacO"
+    },
+    {
+        "domain": ".zomato.com",
+        "expirationDate": 1739050518.226217,
+        "hostOnly": false,
+        "httpOnly": false,
+        "name": "bm_sv",
+        "path": "/",
+        "sameSite": null,
+        "secure": true,
+        "session": false,
+        "storeId": null,
+        "value": "877F9946DAAEE88FD6AFDBC130091419~YAAQ5QFAF/uYDN+UAQAAiUYW5xpBe7DBlf7U3A8xAcYxXYnrkVHDb0cU6gHt8Odlja9i0dosPZropETDg3xTe+s5EGvi9WOtV18R5CXGSZp8dK3r3LYaX9qY6cd7LBN/8oa0c6Ei1+MxDbDO0PCBfVf3//EM/XzDUmi+rWWVJao9k8Aof+kQYouovSFWwzoOsaqDctyLAfZV01AuvPxBJe4fWU+0B296ZyaoZZabDkJfRN1heEppeLh/wrA9MtFJSA==~1"
+    },
+    {
+        "domain": ".zomato.com",
+        "expirationDate": 1767432676.578805,
+        "hostOnly": false,
+        "httpOnly": false,
+        "name": "fbtrack",
+        "path": "/",
+        "sameSite": null,
+        "secure": true,
+        "session": false,
+        "storeId": null,
+        "value": "c8427ac55757c8e1f159904b60783a8e"
+    },
+    {
+        "domain": ".zomato.com",
+        "hostOnly": false,
+        "httpOnly": true,
+        "name": "PHPSESSID",
+        "path": "/",
+        "sameSite": null,
+        "secure": true,
+        "session": true,
+        "storeId": null,
+        "value": "8e9f8596a7a0a12523ed4145a7d9a581"
+    },
+    {
+        "domain": ".zomato.com",
+        "expirationDate": 1770469036.264797,
+        "hostOnly": false,
+        "httpOnly": false,
+        "name": "ttaz",
+        "path": "/",
+        "sameSite": null,
+        "secure": true,
+        "session": false,
+        "storeId": null,
+        "value": "1741525036"
     }
-
-    // return res.status(200).send("Data received and processed successfully!");
-    await page.waitForSelector('[data-tut="SUBMIT_CHANGES"]', {
-      visible: true,
-    });
-    await page.click('[data-tut="SUBMIT_CHANGES"]');
-
-    await delay(2000);
-
-    await page.evaluate(() => {
-      const confirmButton = document.evaluate(
-        '//button[contains(text(), "Yes, I confirm")]',
-        document,
-        null,
-        XPathResult.FIRST_ORDERED_NODE_TYPE,
-        null
-      ).singleNodeValue;
-
-      if (confirmButton) {
-        confirmButton.click();
-      } else {
-        throw new Error('"Yes, I confirm" button not found.');
-      }
-    });
-
-    res.status(200).send("Data received and processed successfully!");
-  } catch (err) {
-    console.error("Error during automation:", err);
-    res.status(500).send(`Error during automation: ${err.message}`);
-  }
-});
-
-export default zomatoRouter;
+]

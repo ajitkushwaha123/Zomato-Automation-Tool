@@ -74,14 +74,14 @@ gemini.post("/upload-menu", upload.single("menu"), async (req, res) => {
 
     // Define the prompt
     const prompt = `
-      !important: Add variants for the bottom products as well, if mentioned. Import variants carefully and strictly follow the pattern. The response must be strictly in JavaScript array format. The data must follow the required structure with the following fields:
+      !important: Extract variant carefully bro Add variants all the variants from the image must, if mentioned. Import variants carefully and strictly follow the pattern. The response must be strictly in JavaScript array format. The data must follow the required structure with the following fields:
       - name // for non-veg category try adding something non-veg in title & description it can be chicken mutton
       - description // shoud be different from title for non-veg category try adding meet type name in the description "chicken" , "mutton"
       - category (capitalize the first letter)
       - sub_category
       - base_price (must be equal to lowest variant price if variants are present else provide simple product price)
       - item_type (Goods or Service)
-      - variants (array of objects in the format: [{ "property_name" : "string", "prices": ["int", "int", ...], "values": ["small", "medium", ...] }]) - variants size must be 1 and values.length == prices.length.
+      - variants (array of objects in the format: [{ "property_name" : "string", "values": [{title : "Small" , price : "499"} , {title : "Large" , price : "999"}] }]) - variants size must be 1
       - food_type
 
       Add dummy data if something is missing.
@@ -97,7 +97,7 @@ gemini.post("/upload-menu", upload.single("menu"), async (req, res) => {
           sub_category: "Subcategory",
           base_price: 100, 
           item_type: "service" // Default if not provided
-          variants: [{ property_name : "Size", values : ["Small", "Medium", "Large"], prices: [100, 200, 300] }] // If variants are provided, add them in this format.
+          variants: [{ property_name : "Size", values : [{title : "Small" , price : "100"} , {title : "Large" , price : "999"}] }] // If variants are provided, add them in this format.
           food_type: "veg" // (String) - options: {"veg", "non_veg", "egg"} // Add yourself if not provided
         },
         ...

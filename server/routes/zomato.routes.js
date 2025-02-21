@@ -30,11 +30,13 @@ zomatoRouter.post("/data", async (req, res) => {
 
     const page = await browser.newPage();
     await page.goto(
-      "https://www.zomato.com/partners/onlineordering/menu/?resId=21699674",
+      "https://www.zomato.com/partners/onlineordering/menu/?resId=21747040",
       { waitUntil: "networkidle2" }
     );
 
     // await page.setViewport({ width: 1120, height: 698 });
+
+    let first = 0;
 
     await delay(2000);
 
@@ -103,6 +105,8 @@ zomatoRouter.post("/data", async (req, res) => {
       });
 
       await delay(2000);
+      
+      first++;
 
       await page.evaluate(() => {
         const newItemBtn = document.evaluate(
@@ -128,6 +132,92 @@ zomatoRouter.post("/data", async (req, res) => {
       let { food_type } = item;
       let itemCategory = item.category;
       let itemSubCategory = item.sub_category;
+
+      if (itemCategory !== category) {
+        category = itemCategory;
+        sub_category = item.sub_category;
+        await delay(2000);
+        if (category && !sub_category) {
+          sub_category = category;
+        }
+
+        await page.waitForSelector('[data-tut="ADD_CATEGORY"]', {
+          visible: true,
+        });
+
+        await page.click('[data-tut="ADD_CATEGORY"]');
+        await delay(2000);
+
+        await page.waitForSelector('[name="categoryName"]', { visible: true });
+        delay(1000);
+        await page.type('[name="categoryName"]', category);
+
+        await delay(2000);
+
+        await page.evaluate(() => {
+          const nextBtn = document.evaluate(
+            '//button[contains(text(), "Next")]',
+            document,
+            null,
+            XPathResult.FIRST_ORDERED_NODE_TYPE,
+            null
+          ).singleNodeValue;
+
+          if (nextBtn) {
+            nextBtn.click();
+          } else {
+            throw new Error("Image button not found.");
+          }
+        });
+
+        await delay(2000);
+
+        await page.waitForSelector('[name="subCategoryName"]', {
+          visible: true,
+        });
+        delay(1000);
+        await page.type('[name="subCategoryName"]', sub_category);
+
+        await delay(2000);
+
+        await page.evaluate(() => {
+          const doneBtn = document.evaluate(
+            '//button[contains(text(), "Done")]',
+            document,
+            null,
+            XPathResult.FIRST_ORDERED_NODE_TYPE,
+            null
+          ).singleNodeValue;
+
+          if (doneBtn) {
+            doneBtn.click();
+          } else {
+            throw new Error("Image button not found.");
+          }
+        });
+
+        await delay(2000);
+
+        first++;
+
+        await page.evaluate(() => {
+          const newItemBtn = document.evaluate(
+            '//button[contains(text(), "Add new item")]',
+            document,
+            null,
+            XPathResult.FIRST_ORDERED_NODE_TYPE,
+            null
+          ).singleNodeValue;
+
+          if (newItemBtn) {
+            newItemBtn.click();
+          } else {
+            throw new Error("Image button not found.");
+          }
+        });
+
+        await delay(2000);
+      }
 
       if (itemSubCategory !== sub_category) {
         await delay(2000);
@@ -176,6 +266,8 @@ zomatoRouter.post("/data", async (req, res) => {
 
         await delay(2000);
 
+        first++;
+
         await page.evaluate(() => {
           const newItemBtn = document.evaluate(
             '//button[contains(text(), "Add new item")]',
@@ -200,12 +292,15 @@ zomatoRouter.post("/data", async (req, res) => {
       }
 
       try {
-        await page.waitForSelector('[data-tut="ADD_CATALOGUE"]', {
-          visible: true,
-        });
-
-        await page.click('[data-tut="ADD_CATALOGUE"]');
-        await delay(2000);
+        if(first === 0){
+          await page.waitForSelector('[data-tut="ADD_CATALOGUE"]', {
+            visible: true,
+          });
+          await page.click('[data-tut="ADD_CATALOGUE"]');
+          await delay(2000);
+        }else{
+          first--;
+        }
 
         await page.waitForSelector("#item-name", { visible: true });
         await page.type("#item-name", name);
@@ -230,6 +325,7 @@ zomatoRouter.post("/data", async (req, res) => {
         }
 
         const imageUrl = img || "";
+        // const imageUrl = "";
 
         if (imageUrl) {
           await delay(3000);

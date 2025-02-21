@@ -201,35 +201,34 @@ export default function ProductTable({ filters = {} }) {
     dispatch(handleSearchResult(name));
   };
 
- const filteredData = (menuData, filters) => {
-   if (!Array.isArray(menuData)) {
-     console.error("Data is not an array:", menuData);
-     return []; // Return an empty array if menuData is invalid
-   }
+  const filteredData = (menuData, filters) => {
+    if (!Array.isArray(menuData)) {
+      console.error("Data is not an array:", menuData);
+      return []; // Return an empty array if menuData is invalid
+    }
 
-   return menuData.filter((item) => {
-     return Object.keys(filters).every((key) => {
-       const filterValue = filters[key];
+    return menuData.filter((item) => {
+      return Object.keys(filters).every((key) => {
+        const filterValue = filters[key];
 
-       // Skip filtering if filter value is null, undefined, or empty string
-       if (!filterValue) return true;
+        // Skip filtering if filter value is null, undefined, or empty string
+        if (!filterValue) return true;
 
-       // Get the item's value dynamically
-       const itemValue = item[key];
+        // Get the item's value dynamically
+        const itemValue = item[key];
 
-       // Check if itemValue exists and matches filterValue
-       return (
-         itemValue !== undefined &&
-         itemValue !== null &&
-         itemValue
-           .toString()
-           .toLowerCase()
-           .includes(filterValue.toString().toLowerCase())
-       );
-     });
-   });
- };
-
+        // Check if itemValue exists and matches filterValue
+        return (
+          itemValue !== undefined &&
+          itemValue !== null &&
+          itemValue
+            .toString()
+            .toLowerCase()
+            .includes(filterValue.toString().toLowerCase())
+        );
+      });
+    });
+  };
 
   const handleAIUpdate = async (filterData, input) => {
     try {
@@ -654,7 +653,9 @@ export default function ProductTable({ filters = {} }) {
         </TableBody>
       </Table>
 
-      <AutomationButton data={filterData} />
+      <div className="flex justify-center items-center mt-10">
+        <AutomationButton data={filterData} />
+      </div>
 
       <div className="my-10">
         <InputFieldPlaceholder

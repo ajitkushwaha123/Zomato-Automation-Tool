@@ -5,16 +5,18 @@ import axios from "axios";
 
 const API_URL = `${import.meta.env.VITE_API_URL}/api`;
 
-const AutomationButton = ({ data }) => {
+const AutomationButton = ({ data, browserEndPoint }) => {
   const [isLoading, setIsLoading] = useState(false);
+  console.log("Data:", data);
 
   const openZomato = async (data) => {
+    console.log("Data:", data);
     try {
       const response = await axios.post(`${API_URL}/zomato/data`, {
         data,
         category: data[0]?.category,
         sub_category: data[0]?.sub_category,
-        browserEndPoint: "fba9dea5-b94d-435a-b9dd-950eeb2a5325",
+        browserEndPoint: browserEndPoint,
       });
 
       console.log("Zomato Response:", response.data);
@@ -44,9 +46,7 @@ const AutomationButton = ({ data }) => {
       <motion.button
         onClick={() => handleFunction(data)}
         whileTap={{ scale: 0.9 }}
-        className={`inline-flex ${
-          isLoading ? "animate-shimmer" : ""
-        } mt-10 h-12 items-center justify-center rounded-md border border-slate-800 bg-[linear-gradient(110deg,#000103,45%,#1e2631,55%,#000103)] bg-[length:200%_100%] px-6 font-medium text-slate-400 transition-colors duration-200 ease-in-out hover:bg-[linear-gradient(110deg,#000103,45%,#1e2631,55%,#000103)] hover:text-slate-200`}
+        className={`flex justify-center items-center`}
         disabled={isLoading}
       >
         <CloudUpload />

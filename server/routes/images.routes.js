@@ -57,6 +57,7 @@ image.post("/upload", upload.single("menu"), async (req, res) => {
       "image/png",
       "image/webp",
       "image/jpeg",
+      "image/avif",
       "application/pdf",
     ];
     if (!allowedMimeTypes.includes(file.mimetype)) {

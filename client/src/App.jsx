@@ -10,6 +10,7 @@ import ZomatoExtensionPage from "./zomatoExtension/ZomatoExtensionPage";
 import Menu from "./zomatoExtension/Menu";
 import ImageUpload from "./ImageSearch/ImageUpload";
 import MenuView from "./zomatoExtension/MenuView/MenuView";
+import Home from "./Home/Home";
 
 function App() {
   const openZomato = async ({ name, description, price }) => {
@@ -86,9 +87,10 @@ function App() {
         <Route element={<AuthLayout />}>
           <Route path="register" element={<Register />} />
           <Route path="login" element={<LoginWithPassword />} />
-          <Route path="/" element={<LoginWithPassword />} />
           <Route path="reset-password" element={<ForgetPassword />} />
         </Route>
+
+        <Route path="/" element={<Home />} />
 
         <Route path="profile" element={<Profile />} />
         <Route path="/zomato" element={<ZomatoExtensionPage />} />
