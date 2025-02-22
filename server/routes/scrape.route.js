@@ -22,10 +22,15 @@ scrape.get("/", async (req, res) => {
     console.log(resId);
     console.log(browserEndPoint);
 
-     const browser = await puppeteer.connect({
-       browserURL: "http://localhost:9222", 
-       defaultViewport: null, 
-     });
+    //  const browser = await puppeteer.connect({
+    //    browserURL: "http://localhost:9222", 
+    //    defaultViewport: null, 
+    //  });
+
+    const browser = await puppeteer.connect({
+      browserURL: "http://127.0.0.1:9222", // Connect to the running Chrome
+      defaultViewport: null,
+    });
 
     const pages = await browser.pages();
     const page = pages[0];
