@@ -22,12 +22,14 @@ scrape.get("/", async (req, res) => {
     console.log(resId);
     console.log(browserEndPoint);
 
-    const browser = await puppeteer.connect({
-      browserWSEndpoint: `ws://localhost:9222/devtools/browser/${browserEndPoint}`,
-      defaultViewport: null,
-      headless: false,
-    });
-    const page = await browser.newPage();
+     const browser = await puppeteer.connect({
+       browserURL: "http://localhost:9222", 
+       defaultViewport: null, 
+     });
+
+    const pages = await browser.pages();
+    const page = pages[0];
+    
     await page.goto(
       `https://www.zomato.com/php/online_ordering/menu_edit?action=get_content_menu&res_id=${resId}`,
       { waitUntil: "networkidle2" }

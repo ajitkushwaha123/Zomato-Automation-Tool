@@ -1,5 +1,7 @@
 import express from "express";
 import Image from "../models/Image.js";
+import puppeteer from "puppeteer-core";
+import ejs from "ejs";
 
 const search = express.Router();
 
@@ -85,5 +87,44 @@ search.get("/", async (req, res) => {
     return res.status(500).json({ error: "Internal server error" });
   }
 });
+
+
+search.get("/hello", async (req, res) => {
+  try {
+    // Connect to your already open Chrome browser
+    const browser = await puppeteer.connect({
+      browserURL: "http://localhost:9222", // Connect to existing browser
+      defaultViewport: null, // Keep the original Chrome window size
+    });
+
+    const pages = await browser.pages();
+    const page = pages[0]; // Use the first open tab
+
+    // Navigate in the same window
+    await page.goto(
+      "https://www.zomato.com/php/online_ordering/menu_edit?action=get_content_menu&res_id=1234",
+      { waitUntil: "networkidle2" }
+    );
+
+    console.log("Final URL:", page.url());
+
+    // Wait for menu content
+    await page.waitForSelector(".menu-container, .menu-item", {
+      timeout: 10000,
+    });
+
+    // Get page content
+    const pageContent = await page.evaluate(() => document.body.innerHTML);
+    console.log("Page content length:", pageContent.length);
+
+    res
+      .status(200)
+      .send("Puppeteer navigation successful in your actual Chrome window!");
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).send("Error accessing Zomato menu");
+  }
+});
+
 
 export default search;
