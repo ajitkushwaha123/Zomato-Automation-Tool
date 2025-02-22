@@ -28,7 +28,7 @@ scrape.get("/", async (req, res) => {
     //  });
 
     const browser = await puppeteer.connect({
-      browserURL: "http://127.0.0.1:9222", // Connect to the running Chrome
+      browserURL: "http://127.0.0.1:9222", 
       defaultViewport: null,
     });
 
