@@ -41,6 +41,17 @@ scrape.get("/", async (req, res) => {
 
     const pages = await browser.pages();
     const page = pages[0];
+    await page.setUserAgent(
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36"
+    );
+    await page.setExtraHTTPHeaders({
+      "accept-language": "en-US,en;q=0.9",
+      "sec-fetch-site": "same-origin",
+      "sec-fetch-mode": "navigate",
+      "sec-fetch-user": "?1",
+      "sec-fetch-dest": "document",
+    });
+
     
     await page.goto(
       `https://www.zomato.com/php/online_ordering/menu_edit?action=get_content_menu&res_id=${resId}`,
