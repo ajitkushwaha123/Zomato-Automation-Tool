@@ -28,8 +28,15 @@ scrape.get("/", async (req, res) => {
     //  });
 
     const browser = await puppeteer.connect({
-      browserURL: "http://127.0.0.1:9222", 
+      browserURL: "http://127.0.0.1:9222",
       defaultViewport: null,
+      headless: false, // Run in visible mode for debugging
+      args: [
+        "--no-sandbox",
+        "--disable-setuid-sandbox",
+        "--disable-gpu",
+        "--disable-dev-shm-usage",
+      ],
     });
 
     const pages = await browser.pages();
