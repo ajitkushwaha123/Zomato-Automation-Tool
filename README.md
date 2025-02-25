@@ -8,7 +8,7 @@ Automate restaurant menu uploads to Zomato. with nearly 0 manual efforts
  
 =>Handles 100+ products in under 30 minutes.
 
-Demo Link : https://lnkd.in/gq8HybpH 
+Demo Link : https://www.youtube.com/watch?v=5wcH7f7qcd8 
 
 ## Screenshots
 
