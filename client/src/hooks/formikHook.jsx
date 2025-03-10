@@ -4,29 +4,33 @@ import toast from "react-hot-toast";
 
 export const useFormikHook = (config) => {
   const [isLoading, setIsLoading] = useState(false);
+
   const formik = useFormik({
     ...config,
     onSubmit: async (values) => {
-      console.log(values);
-      const helperPromise = config?.helperFunction(values);
+      console.log("Submitting form with values:", values);
       setIsLoading(true);
 
-      await toast
-        .promise(helperPromise, {
+      try {
+        const helperPromise = config?.helperFunction(values);
+        if (!(helperPromise instanceof Promise)) {
+          throw new Error("helperFunction did not return a Promise");
+        }
+
+        await toast.promise(helperPromise, {
           loading: config?.loadingMsg || "Loading...",
           success: <b>{config?.successMsg || "Done Successfully... !"}</b>,
           error: (err) => <b>{err?.message || "Something Went Wrong... !"}</b>,
-        })
-        .then(() => {
-          setIsLoading(false);
-          config?.onSuccess();
-        })
-        .catch((err) => {
-          setIsLoading(false);
-          console.error("Promise rejected:", err);
         });
+
+        config?.onSuccess(); 
+      } catch (err) {
+        console.error("Error in useFormikHook:", err);
+      } finally {
+        setIsLoading(false); 
+      }
     },
   });
 
-  return {formik , isLoading};
+  return { formik, isLoading };
 };

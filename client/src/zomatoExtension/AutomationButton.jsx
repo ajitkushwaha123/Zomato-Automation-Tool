@@ -5,7 +5,7 @@ import axios from "axios";
 
 const API_URL = `${import.meta.env.VITE_API_URL}/api`;
 
-const AutomationButton = ({ data, browserEndPoint }) => {
+const AutomationButton = ({ title, data }) => {
   const [isLoading, setIsLoading] = useState(false);
   console.log("Data:", data);
 
@@ -16,7 +16,6 @@ const AutomationButton = ({ data, browserEndPoint }) => {
         data,
         category: data[0]?.category,
         sub_category: data[0]?.sub_category,
-        browserEndPoint: browserEndPoint,
       });
 
       console.log("Zomato Response:", response.data);
@@ -46,13 +45,11 @@ const AutomationButton = ({ data, browserEndPoint }) => {
       <motion.button
         onClick={() => handleFunction(data)}
         whileTap={{ scale: 0.9 }}
-        className={`flex justify-center items-center`}
+        className="flex items-center gap-2 whitespace-nowrap"
         disabled={isLoading}
       >
         <CloudUpload />
-        <span className="ml-2">
-          {isLoading ? "Loading..." : "Start Automation"}
-        </span>
+        <span>{isLoading ? "Loading..." : title}</span>
       </motion.button>
     </div>
   );

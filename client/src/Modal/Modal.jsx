@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { LuWifiOff } from "react-icons/lu";
 
 const Modal = ({ isOpen = false, content, stillOpen }) => {
   const [open, setOpen] = useState(isOpen);
@@ -11,16 +10,16 @@ const Modal = ({ isOpen = false, content, stillOpen }) => {
           <div
             id="popup-modal"
             tabIndex="-1"
-            className="fixed inset-0 flex items-center justify-center overflow-y-auto shadow-lg shadow-indigo-500/40 backdrop-blur-sm bg-indigo-500/10"
+            className="absolute bottom-0 top-0 h-screen w-full inset-0 flex items-center justify-center shadow-lg shadow-indigo-500/40 backdrop-blur-sm bg-indigo-500/10"
           >
-            <div className="relative p-4 w-full max-w-md max-h-full">
-              <div className="relative bg-black rounded-lg shadow dark:bg-gray-700">
+            <div className="absolute z-100 w-full max-w-lg max-h-screen">
+              <div className="relative rounded-lg shadow">
                 <button
                   onClick={() => {
                     setOpen(false), stillOpen(false);
                   }}
                   type="button"
-                  className="absolute top-3 end-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+                  className="absolute z-10 top-8 end-8 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
                   data-modal-hide="popup-modal"
                 >
                   <svg
@@ -40,9 +39,7 @@ const Modal = ({ isOpen = false, content, stillOpen }) => {
                   </svg>
                   <span className="sr-only">Close modal</span>
                 </button>
-                <div className="p-4 my-5 md:p-5 text-center">
-                  {content}
-                </div>
+                <div className="p-4 my-5 md:p-5">{content}</div>
               </div>
             </div>
           </div>

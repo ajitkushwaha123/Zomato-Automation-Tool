@@ -1,34 +1,38 @@
 import express from "express";
 import puppeteer from "puppeteer";
+import { verifyToken } from "../controllers/user.controllers.js";
+import Product from "../models/Product.js";
 
 const scrape = express.Router();
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-scrape.get("/", async (req, res) => {
+scrape.get("/", verifyToken, async (req, res) => {
   try {
-    const { resId, browserEndPoint } = req.query;
+    const { resId, projectId } = req.query;
+
+    const userId = req.id;
+    console.log();
     if (!resId) {
       return res
         .status(400)
         .json({ success: false, message: "Restaurant ID is required." });
     }
 
-    if (!browserEndPoint) {
+    if (!projectId) {
       return res
         .status(400)
-        .json({ success: false, message: "browserEndPoint ID is required." });
+        .json({ success: false, message: "Project ID is required." });
     }
 
-    console.log(resId);
-    console.log(browserEndPoint);
-
-    //  const browser = await puppeteer.connect({
-    //    browserURL: "http://localhost:9222", 
-    //    defaultViewport: null, 
-    //  });
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        message: "Token has been expired login again ...!",
+      });
+    }
 
     const browser = await puppeteer.connect({
-      browserURL: "http://127.0.0.1:9222",
+      browserURL: "http://localhost:9222",
       defaultViewport: null,
       headless: false, // Run in visible mode for debugging
       args: [
@@ -38,6 +42,18 @@ scrape.get("/", async (req, res) => {
         "--disable-dev-shm-usage",
       ],
     });
+
+    // const browser = await puppeteer.connect({
+    //   browserURL: "http://127.0.0.1:9222",
+    //   defaultViewport: null,
+    //   headless: false, // Run in visible mode for debugging
+    //   args: [
+    //     "--no-sandbox",
+    //     "--disable-setuid-sandbox",
+    //     "--disable-gpu",
+    //     "--disable-dev-shm-usage",
+    //   ],
+    // });
 
     const pages = await browser.pages();
     const page = pages[0];
@@ -52,7 +68,6 @@ scrape.get("/", async (req, res) => {
       "sec-fetch-dest": "document",
     });
 
-    
     await page.goto(
       `https://www.zomato.com/php/online_ordering/menu_edit?action=get_content_menu&res_id=${resId}`,
       { waitUntil: "networkidle2" }
@@ -181,20 +196,28 @@ scrape.get("/", async (req, res) => {
       }
 
       return {
-        id: index,
+        id: Date.now().toString() + Math.random().toString(36).substr(2, 5),
         name,
         description,
         img: imageUrl,
-        base_price,
+        base_price : base_price || 0,
         category: category_name,
         food_type,
         item_type: "Goods",
         sub_category,
         variants,
+        userId,
+        projectId,
       };
     });
 
     console.log("Processed Zomato Products:", zomatoProduct);
+
+    if (zomatoProduct.length > 0) {
+      await Product.insertMany(zomatoProduct, { ordered: false }).catch((err) =>
+        console.log("Error inserting data:", err.message)
+      );
+    }
 
     return res.status(200).json({
       data: zomatoProduct,

@@ -11,6 +11,7 @@ import Menu from "./zomatoExtension/Menu";
 import ImageUpload from "./ImageSearch/ImageUpload";
 import MenuView from "./zomatoExtension/MenuView/MenuView";
 import Home from "./Home/Home";
+import Project from "./Project/Project";
 
 function App() {
   const openZomato = async ({ name, description, price }) => {
@@ -97,6 +98,8 @@ function App() {
         <Route path="/menu" element={<Menu />} />
         <Route path="/upload-image" element={<ImageUpload />} />
         <Route path="/products" element={<MenuView />} />
+        <Route path="/projects" element={<Project />} />
+        <Route path="/projects/:projectId" element={<MenuView />} />
       </Routes>
     </div>
   );

@@ -73,7 +73,8 @@ gemini.post("/upload-menu", upload.single("menu"), async (req, res) => {
     };
 
     // Define the prompt
-    const prompt = `
+    const prompt = `discription shoud be simpe easy to understant 5-10 words && description != title
+      combine products with variants if provided separtely 
       !important: Extract variant carefully bro Add variants all the variants from the image must, if mentioned. Import variants carefully and strictly follow the pattern. The response must be strictly in JavaScript array format. The data must follow the required structure with the following fields:
       - name // for non-veg category try adding something non-veg in title & description it can be chicken mutton
       - description // shoud be different from title for non-veg category try adding meet type name in the description "chicken" , "mutton"

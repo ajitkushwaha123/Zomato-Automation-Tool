@@ -9,6 +9,8 @@ import gemini from "./routes/gemini.routes.js";
 import image from "./routes/images.routes.js";
 import search from "./routes/search.routes.js";
 import scrape from "./routes/scrape.route.js";
+import project from "./routes/project.routes.js";
+import products from "./routes/product.routes.js";
 
 dotenv.config();
 
@@ -59,14 +61,17 @@ app.get("/", (req, res) => {
   res.send("Hello World");
 });
 
-app.use("/api/zomato" , zomatoRouter);
-app.use("/api/gemini" , gemini);
+app.use("/api/zomato", zomatoRouter);
+app.use("/api/gemini", gemini);
 
-app.use("/api/image" , image);
-app.use("/api/search" , search);
+app.use("/api/image", image);
+app.use("/api/search", search);
+
+app.use("/api/project", project);
+app.use("/api/products", products);
 
 app.use("/api/user", user);
-app.use("/api/scrape" , scrape);
+app.use("/api/scrape", scrape);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

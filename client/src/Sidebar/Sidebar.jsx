@@ -1,8 +1,7 @@
 "use client";
 import React, { useState } from "react";
-// import { sidebarMenu } from "../constants";
 import { Link } from "react-router-dom";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp, Trash2 } from "lucide-react";
 
 const Sidebar = ({ sidebarMenu }) => {
   const [active, setActive] = useState(3);
@@ -14,7 +13,7 @@ const Sidebar = ({ sidebarMenu }) => {
   };
 
   return (
-    <div className="h-screen overflow-y-scroll chalaja border-r-2 bg-white transition-all duration-300 group hover:w-[276px] w-[80px] group-hover:w-[276px]">
+    <div className="overflow-y-scroll chalaja border-r-2 bg-white transition-all duration-300 group hover:w-[276px] w-[80px] group-hover:w-[276px]">
       <div>
         <ul className="m-4">
           {sidebarMenu.map((menu, index) => (
@@ -32,8 +31,8 @@ const Sidebar = ({ sidebarMenu }) => {
                       toggleSubitems(index);
                     }}
                   >
-                    <div className="flex items-center">
-                      <span className="group-hover:ml-3 hidden group-hover:block">
+                    <div className="flex items-start">
+                      <span className="group-hover:ml-3 text-start hidden group-hover:block">
                         {menu.title}
                       </span>
                     </div>

@@ -65,9 +65,16 @@ const Hero = () => {
         </div>
       ) : (
         <div className="w-full h-screen border-primary border-b-4  text-white bg-black bg-grid-white/[0.05] items-center justify-center relative overflow-hidden">
-          <p className="font-bold bg-primary text-white text-center py-2">
-            AI-DRIVEN AUTOMATION TOOL FOR RESTAURANT MENU UPLOAD & MANAGEMENT 🚀
-          </p>
+          <div className="flex bg-primary text-white px-[50px] py-1 justify-between items-center">
+            <p className="font-bold text-center py-2">
+              AI-DRIVEN AUTOMATION TOOL FOR RESTAURANT MENU UPLOAD & MANAGEMENT
+              🚀
+            </p>
+
+            <button onClick={() => navigate("/login")} className="bg-white font-medium font-poppins py-1 px-[20px] rounded-sm  text-primary border-2-primary border-10">
+              Login
+            </button>
+          </div>
 
           <div className="sm:text-[18px] flex justify-center items-center md:text-[1.8rem] text-center w-full">
             <SpotlightBackground />

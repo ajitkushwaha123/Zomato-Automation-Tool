@@ -1,10 +1,12 @@
 import React, { useEffect, useState, useRef } from "react";
 import { getUser, refreshToken } from "../../helper/helper";
 import toast, { Toaster } from "react-hot-toast";
+import { useNavigate } from "react-router";
 
 const Profile = () => {
   const [user, setUser] = useState(null);
   const firstRender = useRef(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (firstRender.current) {
@@ -50,6 +52,8 @@ const Profile = () => {
         <div>
           <p>Username: {user.username}</p>
           <p>Email: {user.email}</p>
+
+          <button onClick={() => navigate("/projects")}> PROJECT </button>
         </div>
       )}
     </div>

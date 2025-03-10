@@ -21,16 +21,52 @@ zomatoRouter.post("/data", async (req, res) => {
 
   console.log("Data received:", data);
   try {
-    const browser = await puppeteer.connect({
-      defaultViewport: null,
-      headless: false,
+    // const browser = await puppeteer.connect({
+    //   defaultViewport: null,
+    //   headless: false,
 
-      browserWSEndpoint: `ws://localhost:9222/devtools/browser/${browserEndPoint}`,
+    //   browserWSEndpoint: `ws://localhost:9222/devtools/browser/${browserEndPoint}`,
+    // });
+
+    const browser = await puppeteer.connect({
+      browserURL: "http://localhost:9222",
+      defaultViewport: null,
+      headless: false, // Run in visible mode for debugging
+      args: [
+        "--no-sandbox",
+        "--disable-setuid-sandbox",
+        "--disable-gpu",
+        "--disable-dev-shm-usage",
+      ],
     });
 
-    const page = await browser.newPage();
+    // const browser = await puppeteer.connect({
+    //   browserURL: "http://127.0.0.1:9222",
+    //   defaultViewport: null,
+    //   headless: false, // Run in visible mode for debugging
+    //   args: [
+    //     "--no-sandbox",
+    //     "--disable-setuid-sandbox",
+    //     "--disable-gpu",
+    //     "--disable-dev-shm-usage",
+    //   ],
+    // });
+
+    const pages = await browser.pages();
+    const page = pages[0];
+    await page.setUserAgent(
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36"
+    );
+    await page.setExtraHTTPHeaders({
+      "accept-language": "en-US,en;q=0.9",
+      "sec-fetch-site": "same-origin",
+      "sec-fetch-mode": "navigate",
+      "sec-fetch-user": "?1",
+      "sec-fetch-dest": "document",
+    });
+
     await page.goto(
-      "https://www.zomato.com/partners/onlineordering/menu/?resId=21747040",
+      "https://www.zomato.com/partners/onlineordering/menu/?resId=21530881",
       { waitUntil: "networkidle2" }
     );
 
@@ -62,21 +98,23 @@ zomatoRouter.post("/data", async (req, res) => {
       delay(1000);
       await page.type('[name="categoryName"]', category);
 
-      await delay(2000);
+      await delay(3000);
 
       await page.evaluate(() => {
         const nextBtn = document.evaluate(
-          '//button[contains(text(), "Next")]',
+          '//button[contains(normalize-space(), "Next")]',
           document,
           null,
           XPathResult.FIRST_ORDERED_NODE_TYPE,
           null
         ).singleNodeValue;
 
+        console.log("Next button found:", nextBtn);
+
         if (nextBtn) {
           nextBtn.click();
         } else {
-          throw new Error("Image button not found.");
+          throw new Error("Next button not found.");
         }
       });
 
@@ -324,8 +362,8 @@ zomatoRouter.post("/data", async (req, res) => {
           throw new Error(`Invalid food type: "${food_type}"`);
         }
 
-        const imageUrl = img || "";
-        // const imageUrl = "";
+        // const imageUrl = img || "";
+        const imageUrl = "";
 
         if (imageUrl) {
           await delay(3000);
@@ -667,3 +705,6 @@ zomatoRouter.post("/data", async (req, res) => {
 });
 
 export default zomatoRouter;
+
+
+

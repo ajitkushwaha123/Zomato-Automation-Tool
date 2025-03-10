@@ -2,6 +2,7 @@ import axios from "axios";
 
 const API_URL = `${import.meta.env.VITE_API_URL}/api`;
 import { apiRequest } from "../../utils/api-request";
+axios.defaults.withCredentials = true;
 
 export const registerUser = (data) =>
   apiRequest(
@@ -71,3 +72,17 @@ export const resetPassword = (data) =>
     () => axios.post(`${API_URL}/user/reset-password`, data),
     "Error in resetting password... !"
   );
+
+export const addProject = async (values) => {
+  console.log(values);
+
+  const formData = new FormData();
+  formData.append("name" , values.name);
+  formData.append("description", values.description);
+  formData.append("file", values.file);
+
+  return apiRequest(
+    () => axios.post(`${API_URL}/project`, formData),
+    "Failed to add project"
+  );
+};

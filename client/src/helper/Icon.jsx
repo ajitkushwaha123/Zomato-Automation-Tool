@@ -26,6 +26,11 @@ import {
   Truck,
   HandPlatter,
   Bike,
+  CirclePlus,
+  SquarePen,
+  Trash2,
+  Eye,
+  CalendarDays,
 } from "lucide-react";
 
 const Icons = {
@@ -55,6 +60,11 @@ const Icons = {
   Truck,
   HandPlatter,
   Bike,
+  CirclePlus,
+  SquarePen,
+  Trash2,
+  Eye,
+  CalendarDays,
 };
 
 const Icon = ({ name }) => {
