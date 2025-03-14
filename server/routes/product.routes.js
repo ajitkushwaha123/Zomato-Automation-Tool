@@ -49,6 +49,7 @@ products.put("/bulk-update", verifyToken, async (req, res) => {
         projectId,
       });
     }
+    
 
     if (!updatedData || updatedData.length === 0) {
       return res.status(400).json({

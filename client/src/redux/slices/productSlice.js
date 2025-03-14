@@ -8,23 +8,35 @@ export const handleMenuUpload = createAsyncThunk(
   "product/handleMenuUpload",
   async (formData, thunkAPI) => {
     try {
-      formData.forEach((value, key) => console.log(`${key}:`, value));
+      for (const [key, value] of formData.entries()) {
+        console.log(`${key}:`, value);
+      }
+
+      const projectId = formData.get("projectId");
+
+      if (!projectId) {
+        throw new Error("Missing required fields: projectId");
+      }
+
       const response = await axios.post(
-        `${API_URL}/gemini/upload-menu`,
+        `${API_URL}/gemini/upload-menu?projectId=${projectId}`,
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },
         }
       );
-      console.log("response", response.data.data);
+
+      console.log("Response:", response.data);
       return response?.data || {};
     } catch (error) {
+      console.error("Upload Error:", error);
       return thunkAPI.rejectWithValue(
         error.response?.data?.message || "Failed to upload menu"
       );
     }
   }
 );
+
 
 export const fetchMenu = createAsyncThunk("products/fetchMenu", async (id) => {
   return apiRequest(

@@ -91,13 +91,13 @@ const ItemsTable = ({ filters = {} }) => {
 
   const filterData = filteredData(menuData, filters);
 
-  // filterData.sort((a, b) => {
-  //   const categoryComparison = a.category.localeCompare(b.category);
-  //   if (categoryComparison !== 0) {
-  //     return categoryComparison;
-  //   }
-  //   return a.sub_category.localeCompare(b.sub_category);
-  // });
+  filterData.sort((a, b) => {
+    const categoryComparison = a.category.localeCompare(b.category);
+    if (categoryComparison !== 0) {
+      return categoryComparison;
+    }
+    return a.sub_category.localeCompare(b.sub_category);
+  });
 
   const handleAIUpdate = async (filterData, input) => {
     try {

@@ -66,7 +66,7 @@ zomatoRouter.post("/data", async (req, res) => {
     });
 
     await page.goto(
-      "https://www.zomato.com/partners/onlineordering/menu/?resId=21530881",
+      "https://www.zomato.com/partners/onlineordering/menu/?resId=21732108",
       { waitUntil: "networkidle2" }
     );
 
@@ -362,8 +362,8 @@ zomatoRouter.post("/data", async (req, res) => {
           throw new Error(`Invalid food type: "${food_type}"`);
         }
 
-        // const imageUrl = img || "";
-        const imageUrl = "";
+        const imageUrl = img || "";
+        // const imageUrl = "";
 
         if (imageUrl) {
           await delay(3000);
