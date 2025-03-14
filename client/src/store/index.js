@@ -3,6 +3,7 @@ import menuSlice from "../redux/slices/productSlice";
 import modalSlice from "../redux/slices/modalSlice";
 import globalValueSlice from "../redux/slices/globalValueSlice";
 import projectReducer from "../redux/slices/projectSlice";
+import leadReducer from "../redux/slices/leadSlice";
 
 // Auth slice
 const authSlice = createSlice({
@@ -29,5 +30,6 @@ export const store = configureStore({
     searchModal: modalSlice.reducer,
     globalValue: globalValueSlice,
     projects: projectReducer,
+    leads: leadReducer,
   },
 });
