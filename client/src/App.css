@@ -26,4 +26,26 @@ body
   -moz-appearance: textfield;
 }
 
+.dark .datepicker-container {
+  background-color: #1f2937 !important; 
+  color: white !important;
+}
+
+.dark .datepicker-input {
+  background-color: #374151 !important; 
+  color: white !important;
+  border-color: #4b5563 !important; 
+}
+
+.dark .datepicker-dropdown {
+  background-color: #1f2937 !important;
+  color: white !important;
+}
+
+.dark .datepicker-day-selected {
+  background-color: #10b981 !important; 
+  color: white !important;
+}
+
+
 

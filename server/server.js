@@ -11,6 +11,8 @@ import search from "./routes/search.routes.js";
 import scrape from "./routes/scrape.route.js";
 import project from "./routes/project.routes.js";
 import products from "./routes/product.routes.js";
+import leads from "./routes/leads.route.js";
+import swiggy from "./routes/swiggy.routes.js";
 
 dotenv.config();
 
@@ -72,6 +74,8 @@ app.use("/api/products", products);
 
 app.use("/api/user", user);
 app.use("/api/scrape", scrape);
+app.use("/api/leads", leads);
+app.use("/api/swiggy", swiggy);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

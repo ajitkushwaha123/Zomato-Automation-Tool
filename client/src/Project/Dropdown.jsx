@@ -17,6 +17,7 @@ export default function DropDown({
   showBtn = false,
   selectedDropdown,
   projectId,
+  type,
 }) {
   const handleSelectedDropdownOption = (val) => {
     selectedDropdown(val);
@@ -27,7 +28,11 @@ export default function DropDown({
 
   const { projects, loading, error, handleDeleteProject } = useProjects();
   const handleViewProject = (projectId) => {
-    navigate(`/projects/${projectId}`);
+    if (type == true) {
+      navigate(`/leads/projects/${projectId}`);
+    }else{
+      navigate(`/projects/${projectId}`);
+    }
   };
 
   return (

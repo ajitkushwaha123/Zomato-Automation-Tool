@@ -1,55 +1,38 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import axios from "axios";
+import { apiRequest } from "../../../utils/api-request";
 
-const data = [
-  {
-    id: "1",
-    name: "John Doe",
-    phone: "123-456-7890",
-    services: "Web Development",
-    price: "$2000",
-    status: "New",
-    remark: "Follow up next week",
-    date: new Date().toISOString(),
-  },
-  {
-    id: "2",
-    name: "Jane Smith",
-    phone: "987-654-3210",
-    services: "SEO",
-    price: "$1500",
-    status: "In Progress",
-    remark: "Awaiting client feedback",
-    date: new Date().toISOString(),
-  },
-  {
-    id: "3",
-    name: "Alice Johnson",
-    phone: "555-666-7777",
-    services: "Graphic Design",
-    price: "$1200",
-    status: "Closed",
-    remark: "Project completed successfully , Project completed successfully",
-    date: new Date().toISOString(),
-  },
-];
+const API_URL = `${import.meta.env.VITE_API_URL}/api`;
 
-const columns = [
-  { title: "S. No.", uid: "serial" },
-  { title: "Date", uid: "date" },
-  { title: "Name", uid: "name" },
-  { title: "Phone", uid: "phone" },
-  { title: "Services", uid: "services" },
-  { title: "Price", uid: "price" },
-  { title: "Status", uid: "status" },
-  { title: "Remark", uid: "remark" },
-  { title: "+", uid: "delete" },
-];
+// Async action to fetch leads board
+export const fetchBoard = createAsyncThunk(
+  "leads/fetchBoard",
+  async (projectId, { rejectWithValue }) => {
+    try {
+      if (!projectId) {
+        throw new Error("Project ID is required to fetch leads");
+      }
+
+      console.log("Fetching board for projectId:", projectId);
+
+      const response = await apiRequest(
+        () => axios.get(`${API_URL}/leads?projectId=${projectId}`),
+        "Failed to fetch leads"
+      );
+
+      return response; // Ensure response is structured as expected
+    } catch (error) {
+      console.error("Error fetching board:", error);
+      return rejectWithValue(error.message || "Failed to fetch leads");
+    }
+  }
+);
 
 const leadSlice = createSlice({
   name: "leads",
   initialState: {
-    columns: columns,
-    leads: data,
+    columns: [],
+    leads: [],
     isLoading: false,
     error: null,
     message: "",
@@ -63,22 +46,45 @@ const leadSlice = createSlice({
       });
     },
     removeLead: (state, action) => {
-      console.log(action.payload);
+      console.log("Removing lead with ID:", action.payload);
       state.leads = state.leads.filter((lead) => lead.id !== action.payload);
     },
     updateLead: (state, action) => {
-      const { id, updatedData } = action.payload;
-      const index = state.leads.findIndex((lead) => lead.id === id);
+      console.log("Updating lead:", action.payload);
+      state.leads = state.leads.map((lead) =>
+        lead.id === action.payload.id
+          ? { ...lead, [action.payload.field]: action.payload.value }
+          : lead
+      );
 
-      if (index !== -1) {
-        state.leads[index] = {
-          ...state.leads[index],
-          ...updatedData,
-        };
+      if (!state.updatedLeads.includes(action.payload.id)) {
+        state.updatedLeads.push(action.payload.id);
       }
     },
+    addColumn: (state, action) => {
+      return {
+        ...state,
+        columns: [...state.columns, action.payload],
+      };
+    },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchBoard.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(fetchBoard.fulfilled, (state, action) => {
+        console.log("Fetched board data:", action.payload);
+        state.isLoading = false;
+        state.columns = action.payload.data[0].columns;
+        state.leads = action.payload.data[0].rows;
+      })
+      .addCase(fetchBoard.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload || "Failed to fetch leads";
+      });
   },
 });
 
-export const { addLead, removeLead, updateLead } = leadSlice.actions;
+export const { addLead, removeLead, updateLead, addColumn } = leadSlice.actions;
 export default leadSlice.reducer;

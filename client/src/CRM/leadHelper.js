@@ -2,7 +2,7 @@ export const formatDate = (dateString) => {
   if (!dateString) return "-";
 
   const date = new Date(dateString);
-  if (isNaN(date)) return "-"; 
+  if (isNaN(date)) return "-";
 
   const day = date.getDate();
   const month = date.toLocaleString("en-US", { month: "short" });
@@ -12,8 +12,8 @@ export const formatDate = (dateString) => {
 };
 
 export const generateUniqueId = () => {
-  const timestamp = Date.now().toString(36); 
-  const randomPart = Math.random().toString(36).substring(2, 6); 
+  const timestamp = Date.now().toString(36);
+  const randomPart = Math.random().toString(36).substring(2, 6);
   return `${timestamp}-${randomPart}`.toUpperCase();
 };
 
@@ -29,3 +29,18 @@ export const getStatusColor = (status) => {
       return "bg-gray-500 text-white whitespace-nowrap";
   }
 };
+
+export const statusOptions = [
+  {
+    title: "New",
+    uid: "new",
+  },
+  {
+    title: "In Progress",
+    uid: "inProgress",
+  },
+  {
+    title: "Closed",
+    uid: "closed",
+  },
+];

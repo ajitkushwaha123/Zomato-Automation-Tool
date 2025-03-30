@@ -1,15 +1,35 @@
 import React from "react";
-import Category from "../zomatoExtension/MenuView/Category";
 import LeadsTable from "./LeadsTable";
+import Sidebar from "./Sidebar";
+
+const sidebarData = [
+  { title: "Dashboard" , link : "/leads/dashboard" },
+  { title: "Projects" , link : "/leads/projects ", subItems: ["Project A", "Project B"] },
+  { title: "Teams", subItems: ["Team Alpha", "Team Beta"] },
+  { title: "Settings" },
+];
+
+const handleItemClick = (title) => {
+  console.log("Clicked:", title);
+};
+
+const handleSubItemClick = (parentTitle, subTitle) => {
+  console.log(`Clicked Sub-item: ${subTitle} in ${parentTitle}`);
+};
+
+const handleDelete = (parentTitle, subTitle) => {
+  console.log(`Delete ${subTitle} from ${parentTitle}`);
+};
 
 const Leads = () => {
   return (
     <div className="flex bg-[#0F090C] bg-pattern1 justify-between items-start">
       <div className="w-[20%] h-screen overflow-hidden">
-        <Category
-        //   menuData={menuData}
-        //   selectCategory={selectedCategory}
-        //   finalItems={finalItems}
+        <Sidebar
+          sidebarItems={sidebarData}
+          onItemClick={handleItemClick}
+          onSubItemClick={handleSubItemClick}
+          onDelete={handleDelete}
         />
       </div>
 

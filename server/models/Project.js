@@ -20,6 +20,10 @@ const projectSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    crmProject: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );

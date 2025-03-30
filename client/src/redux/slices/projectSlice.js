@@ -32,6 +32,7 @@ export const addProject = createAsyncThunk(
     formData.append("name", values.name);
     formData.append("description", values.description);
     formData.append("file", values.file);
+    formData.append("crmProject", values.crmProject);
 
     return apiRequest(
       () => axios.post(`${API_URL}/project`, formData),

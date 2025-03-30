@@ -75,6 +75,11 @@ scrape.get("/", verifyToken, async (req, res) => {
 
     await delay(2000);
 
+    // await page.waitForSelector(".Section__Button-menu-mfe__sc-ubf19j-2.cibxUI");
+
+    // // Click the button
+    // await page.click(".Section__Button-menu-mfe__sc-ubf19j-2.cibxUI");
+
     const menu = await page.evaluate(() => {
       const menuElement = document.querySelector("pre");
       if (menuElement) {
@@ -200,7 +205,7 @@ scrape.get("/", verifyToken, async (req, res) => {
         name,
         description,
         img: imageUrl,
-        base_price : base_price || 0,
+        base_price: base_price || 0,
         category: category_name,
         food_type,
         item_type: "Goods",

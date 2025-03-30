@@ -2,14 +2,12 @@ import React, { useState } from "react";
 import Button from "../components/Button/Button";
 import { useFormik } from "formik";
 import toast, { Toaster } from "react-hot-toast";
-import { useProjects } from "../hooks/useProjects";
 import { useProducts } from "../hooks/useProducts";
 import { CloudUpload, PlaneTakeoff } from "lucide-react";
 import { handleMenuUpload } from "../redux/slices/productSlice";
 import { useDispatch, useSelector } from "react-redux";
 
 const Feature = ({ projectId, stillOpen }) => {
-  console.log("projectId", projectId);
   const { handleDataScraping, loading } = useProducts();
   const [type, setType] = useState("transfer");
   const dispatch = useDispatch();

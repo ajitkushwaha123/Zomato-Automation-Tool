@@ -5,6 +5,7 @@ import { upload } from "../middleware/upload.js";
 import fs from "fs";
 import { v2 as cloudinary } from "cloudinary";
 import dotenv from "dotenv";
+import { createBoard } from "./leads.route.js";
 
 dotenv.config();
 
@@ -18,8 +19,10 @@ const project = express.Router();
 
 project.post("/", verifyToken, upload.single("file"), async (req, res) => {
   try {
-    const { name, description } = req.body;
+    const { name, description, crmProject } = req.body;
     const userId = req.id;
+
+    console.log("crm", crmProject);
 
     if (!userId) {
       return res.status(401).json({
@@ -92,9 +95,16 @@ project.post("/", verifyToken, upload.single("file"), async (req, res) => {
       description,
       userId,
       image: imageUrl,
+      crmProject: crmProject || false,
     });
 
     await newProject.save();
+
+    if (newProject.crmProject == true) {
+      await createBoard({ userId, projectId: newProject?._id });
+    }
+
+    console.log(newProject);
 
     return res.status(201).json({
       msg: "Project created successfully!",
@@ -112,7 +122,6 @@ project.post("/", verifyToken, upload.single("file"), async (req, res) => {
 
 project.get("/", verifyToken, async (req, res) => {
   const userId = req.id;
-
   if (!userId) {
     return res.status(401).json({
       msg: "Unauthorized. Please log in!",
@@ -121,7 +130,9 @@ project.get("/", verifyToken, async (req, res) => {
   }
 
   try {
-    const projects = await Project.find({ userId }).sort({ createdAt: -1 });
+    const projects = await Project.find({ userId }).sort({
+      createdAt: -1,
+    });
 
     return res.status(200).json({
       msg: "All Projects",

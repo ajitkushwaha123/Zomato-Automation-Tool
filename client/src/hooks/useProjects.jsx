@@ -18,8 +18,8 @@ export const useProjects = () => {
     dispatch(deleteProject(id));
   };
 
-  const handleAddProject = (values) => {
-    dispatch(addProject(values));
+  const handleAddProject = async (values) => {
+    await dispatch(addProject(values));
   };
   return { projects, loading, error, handleDeleteProject, handleAddProject };
 };

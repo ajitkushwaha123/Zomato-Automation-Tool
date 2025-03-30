@@ -12,7 +12,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 zomatoRouter.post("/data", async (req, res) => {
-  const { data, browserEndPoint } = req.body;
+  const { data } = req.body;
   let sub_category = req.body.sub_category;
   let category = req.body.category;
   console.log("Data received:", data);
@@ -66,7 +66,7 @@ zomatoRouter.post("/data", async (req, res) => {
     });
 
     await page.goto(
-      "https://www.zomato.com/partners/onlineordering/menu/?resId=21732108",
+      "https://www.zomato.com/partners/onlineordering/menu/?resId=21632691",
       { waitUntil: "networkidle2" }
     );
 

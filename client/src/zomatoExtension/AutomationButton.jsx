@@ -12,11 +12,17 @@ const AutomationButton = ({ title, data }) => {
   const openZomato = async (data) => {
     console.log("Data:", data);
     try {
-      const response = await axios.post(`${API_URL}/zomato/data`, {
-        data,
-        category: data[0]?.category,
-        sub_category: data[0]?.sub_category,
-      });
+      // const response = await axios.post(`${API_URL}/zomato/data`, {
+      //   data,
+      //   category: data[0]?.category,
+      //   sub_category: data[0]?.sub_category,
+      // });
+
+       const response = await axios.post(`${API_URL}/swiggy/data`, {
+         data,
+         category: data[0]?.category,
+         sub_category: data[0]?.sub_category,
+       });
 
       console.log("Zomato Response:", response.data);
     } catch (err) {
