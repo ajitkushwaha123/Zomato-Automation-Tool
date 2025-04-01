@@ -118,7 +118,7 @@ swiggy.post("/data", async (req, res) => {
         console.log("Input field not found inside iframe.");
       }
 
-      await delay(2000);
+      await delay(1000);
 
       // **Wait for 'Save' button and click it**
       await frame.waitForSelector("button.sc-ghWlax.kutSJv", {
@@ -140,7 +140,7 @@ swiggy.post("/data", async (req, res) => {
 
         console.log(category);
 
-        await delay(2000);
+        await delay(3000);
 
         const foundCategories = await frame.evaluate(() => {
           const elements = [
@@ -155,7 +155,7 @@ swiggy.post("/data", async (req, res) => {
 
         console.log("Extracted Categories:", foundCategories);
 
-        const categoryName = category; 
+        const categoryName = category;
 
         if (!foundCategories.includes(categoryName)) {
           console.log(`❌ Category '${categoryName}' not found.`);
@@ -179,6 +179,7 @@ swiggy.post("/data", async (req, res) => {
         }
 
         console.log("Switched to iframe.");
+
         await frame.waitForSelector("button", { timeout: 10000 });
 
         const buttons = await frame.$$("button");
@@ -303,7 +304,7 @@ swiggy.post("/data", async (req, res) => {
 
           console.log("final", addVariantBtn);
 
-          await delay(2000);
+          await delay(1000);
 
           if (addVariantBtn) {
             await addVariantBtn.click();
@@ -334,7 +335,7 @@ swiggy.post("/data", async (req, res) => {
                 console.log(
                   `Clicked 'ADD MORE OPTION' button for variant index ${i}.`
                 );
-                await delay(2000); 
+                await delay(1000);
               } else {
                 console.log("'ADD MORE OPTION' button not found.");
               }
@@ -370,8 +371,7 @@ swiggy.post("/data", async (req, res) => {
               continue;
             }
 
-           
-            await delay(1000); 
+            await delay(1000);
             const additionalPriceInputs = await frame.$$(
               "input.styles__AdditionalPriceInput-menu-mfe__sc-1bs1sei-16"
             );
@@ -383,14 +383,14 @@ swiggy.post("/data", async (req, res) => {
               );
             }
 
-            await delay(2000);
+            await delay(1000);
 
             const suggestionSelector = `div.SpellCheckInfoBar__SubText-menu-mfe__sc-k4s21k-6`;
             const suggestionElement = await frame.$(suggestionSelector);
 
             if (suggestionElement) {
               console.log(`Suggestion found! Clicking to apply '${title}'.`);
-              await suggestionElement.click(); 
+              await suggestionElement.click();
               await delay(1000);
             } else {
               console.log(`No suggestion found. Keeping '${title}' as typed.`);
@@ -414,9 +414,9 @@ swiggy.post("/data", async (req, res) => {
               );
             }
 
-            await delay(2000);
+            await delay(1000);
           }
-          
+
           await frame.waitForSelector(
             "button.styles__UpdateButton-menu-mfe__sc-1bs1sei-35",
             { visible: true }
@@ -433,13 +433,13 @@ swiggy.post("/data", async (req, res) => {
             console.log("'SAVE VARIANT GROUP' button not found.");
           }
 
-          await delay(2000);
+          await delay(1000);
         }
 
         const imageUrl = img;
         // ||"https://b.zmtcdn.com/data/dish_photos/cf4/eff3178d437faf3157af9944d491ecf4.jpg"
         if (imageUrl) {
-          await delay(3000);
+          await delay(1000);
 
           await frame.waitForSelector('input[type="file"][name="img"]', {
             visible: true,
@@ -470,45 +470,120 @@ swiggy.post("/data", async (req, res) => {
           console.log("fileInput", fileInput);
           await fileInput.uploadFile(localImagePath);
 
-          await delay(10000);
+          await delay(1000);
 
           await frame.waitForSelector(
             "button.pyxl-food__nextstep-btn.pyxl-w-full.pyxl-uppercase.pyxl-cursor-pointer",
             { visible: true }
           );
 
-         
           const submitButton = await frame.$(
             "button.pyxl-food__nextstep-btn.pyxl-w-full.pyxl-uppercase.pyxl-cursor-pointer"
           );
+
           if (submitButton) {
-            await submitButton.click();
-            console.log("Clicked the 'Submit' button.");
+            // Extract button text
+            const buttonText = await frame.evaluate(
+              (el) => el.textContent.trim(),
+              submitButton
+            );
+
+            if (buttonText.includes("reupload photo")) {
+              console.log(
+                "Reupload Photo button found. Clicking close icon..."
+              );
+
+              // Select and click the close button (img element)
+              const closeButton = await frame.$(
+                "img.pyxl-float-right.pyxl-w-auto.pyxl-cursor-pointer"
+              );
+              if (closeButton) {
+                await closeButton.click();
+                console.log("Clicked the close icon.");
+
+                // Wait for "Yes" button to appear
+                await frame.waitForSelector(
+                  "button.pyxl-food__inprogress-btn",
+                  { visible: true }
+                );
+
+                // Select and click the "Yes" button
+                const yesButton = await frame.$(
+                  "button.pyxl-food__inprogress-btn"
+                );
+                if (yesButton) {
+                  await yesButton.click();
+                  console.log("Clicked the 'Yes' button.");
+                } else {
+                  console.log("'Yes' button not found.");
+                }
+              } else {
+                console.log("Close icon not found.");
+              }
+            } else if (buttonText.includes("submit")) {
+              await submitButton.click();
+              console.log("Clicked the 'Submit' button.");
+            } else {
+              console.log(
+                "Button found, but text does not match expected values."
+              );
+            }
           } else {
-            console.log("'Submit' button not found.");
+            console.log("Button not found.");
           }
         }
 
-        await delay(3000);
+        await delay(1000);
 
-        await frame.waitForSelector('[data-testid="item-submit-button"]', {
-          visible: true,
-        });
+        await frame
+          .waitForSelector('[data-testid="item-submit-button"]', {
+            visible: true,
+            timeout: 3000,
+          })
+          .catch(() =>
+            console.log(
+              "'Final Submit' button not found initially. Looking for 'Submit Anyway' button..."
+            )
+          );
 
-        // Click on the submit button
+        await delay(1000);
+
+        // Try to click the main submit button
         const finalSubmit = await frame.$('[data-testid="item-submit-button"]');
 
-        console.log("final", finalSubmit);
+        await finalSubmit.click();
+        console.log("Clicked the 'Final Submit' button.");
 
-        await delay(2000);
+        console.log(
+          "'Final Submit' button not found. Checking for 'Submit Anyway'..."
+        );
 
-        if (finalSubmit) {
-          await finalSubmit.click();
-          console.log("Clicked the 'Final Submit' button.");
+        // Try clicking the 'Ignore & Submit Anyway' button
+        const submitAnywayButton = await frame.$(
+          "div.SubmitConfirmModal__IgnoreButton-menu-mfe__sc-18oy7lx-1.edjSRW"
+        );
+
+        if (submitAnywayButton) {
+          await submitAnywayButton.click();
+          console.log("Clicked the 'Submit Anyway' button.");
         } else {
-          console.log("'Final Submit' button not found.");
+          console.log(
+            "'Submit Anyway' button not found. Trying text-based search..."
+          );
+
+          // Fallback: Find by text content
+          const buttons = await frame.$$("div");
+          for (let button of buttons) {
+            const text = await button.evaluate((node) => node.innerText.trim());
+            if (text.includes("IGNORE & SUBMIT ANYWAY")) {
+              await button.click();
+              console.log(
+                "Clicked the 'Submit Anyway' button using text search."
+              );
+              break;
+            }
+          }
         }
-        await delay(3000);
       }
     } else {
       console.log("No iframe found.");

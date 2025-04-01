@@ -66,7 +66,7 @@ zomatoRouter.post("/data", async (req, res) => {
     });
 
     await page.goto(
-      "https://www.zomato.com/partners/onlineordering/menu/?resId=21632691",
+      "https://www.zomato.com/partners/onlineordering/menu/?resId=21822718",
       { waitUntil: "networkidle2" }
     );
 
