@@ -86,6 +86,7 @@ leads.post("/", verifyToken, async (req, res) => {
   //     success: false,
   //   });
   // }
+  
 
   try {
     const newLeadBoard = {

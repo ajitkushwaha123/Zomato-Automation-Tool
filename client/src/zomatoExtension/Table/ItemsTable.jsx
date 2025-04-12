@@ -244,8 +244,8 @@ const ItemsTable = ({ filters = {} }) => {
         <div className="bg-gray-900 text-white p-6 rounded-xl shadow-lg backdrop-blur-lg border border-gray-800">
           {message ? <Toast title={message} /> : null}
           <div className="flex justify-between items-center">
-            <h2 className="text-2xl font-semibold mb-4 text-gray-200">
-              🍽️ Product List
+            <h2 className="text-2xl flex-nowrap font-semibold mb-4 text-gray-200">
+              🍽️ Product List ({filterData.length})
             </h2>
             <div className="flex justify-center items-center">
               <div className="justify-center mb-4 mr-4 flex items-center w-[100%] bg-gray-800 hover:bg-gray-700 px-4 py-2.5 rounded-lg font-semibold transition-all duration-300">
@@ -258,8 +258,19 @@ const ItemsTable = ({ filters = {} }) => {
                   <span>{isLoading ? "Loading..." : "Save"}</span>
                 </motion.button>
               </div>
-              <div className="justify-center mb-4 mr-4 flex items-center w-[100%] bg-gray-800 hover:bg-gray-700 px-4 py-2.5 rounded-lg font-semibold transition-all duration-300">
-                <AutomationButton data={filterData} title="Start Automation" />
+              <div className="justify-center gap-2 mb-4 mr-4 flex items-center w-[100%] bg-gray-800 hover:bg-gray-700 px-4 py-2.5 rounded-lg font-semibold transition-all duration-300">
+                <AutomationButton
+                  title="Zomato"
+                  data={filterData}
+                  platform="zomato"
+                />
+              </div>
+              <div className="justify-center gap-2 mb-4 mr-4 flex items-center w-[100%] bg-gray-800 hover:bg-gray-700 px-4 py-2.5 rounded-lg font-semibold transition-all duration-300">
+                <AutomationButton
+                  title="Swiggy"
+                  data={filterData}
+                  platform="swiggy"
+                />
               </div>
               <div className="flex mb-4 justify-center items-center bg-gray-800 border border-gray-700 rounded-md px-4 py-2 shadow-md backdrop-blur-md">
                 <input

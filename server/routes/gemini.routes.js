@@ -116,7 +116,7 @@ gemini.post(
             [
               {
                 name: "Product Name",
-                description: "Product Description", // Generate yourself
+                description: "Product Description", // Generate yourself must add full stop .
                 category: "Category",
                 sub_category: "Subcategory",
                 base_price: 100,

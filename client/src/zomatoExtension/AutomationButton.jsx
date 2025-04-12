@@ -5,7 +5,7 @@ import axios from "axios";
 
 const API_URL = `${import.meta.env.VITE_API_URL}/api`;
 
-const AutomationButton = ({ title, data }) => {
+const AutomationButton = ({ title, data, platform }) => {
   const [isLoading, setIsLoading] = useState(false);
   console.log("Data:", data);
 
@@ -30,7 +30,48 @@ const AutomationButton = ({ title, data }) => {
     }
   };
 
+  const groupByCategory = (data) => {
+    return data.reduce((acc, item) => {
+      if (!acc[item.category]) {
+        acc[item.category] = [];
+      }
+      acc[item.category].push(item);
+      return acc;
+    }, {});
+  };
+
+  const openSwiggy = async (categoryData) => {
+    try {
+      const response = await axios.post(`${API_URL}/swiggy/data`, {
+        data: categoryData,
+        category: categoryData[0]?.category,
+        sub_category: categoryData[0]?.sub_category,
+      });
+      console.log("Swiggy Response:", response.data);
+    } catch (err) {
+      console.error("Swiggy API Error:", err);
+    }
+  };
+
   const handleFunction = async (data) => {
+    if (!data || data.length === 0) {
+      console.error("No data provided!");
+      return;
+    }
+    setIsLoading(true);
+    try {
+      const groupedData = groupByCategory(data);
+      for (const category in groupedData) {
+        await openSwiggy(groupedData[category]);
+      }
+    } catch (err) {
+      console.error("Automation Error:", err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleZomatoFunction = async (data) => {
     if (!data || data.length === 0) {
       console.error("No data provided!");
       return;
@@ -49,7 +90,11 @@ const AutomationButton = ({ title, data }) => {
   return (
     <div>
       <motion.button
-        onClick={() => handleFunction(data)}
+        onClick={
+          platform === "swiggy"
+            ? () => handleFunction(data)
+            : () => handleZomatoFunction(data)
+        }
         whileTap={{ scale: 0.9 }}
         className="flex items-center gap-2 whitespace-nowrap"
         disabled={isLoading}
