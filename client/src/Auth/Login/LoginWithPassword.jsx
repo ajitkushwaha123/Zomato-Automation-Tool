@@ -28,7 +28,7 @@ const LoginWithPassword = () => {
         onValidate: loginWithPasswordValidate,
         func: loginWithEmailOrUsername,
         onSuccess: () => {
-          navigate("/profile");
+          navigate("/projects");
         },
         success: "Logged in Successfully...!",
         loading: "Logging in ...",

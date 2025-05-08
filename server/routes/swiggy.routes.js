@@ -439,7 +439,7 @@ swiggy.post("/data", async (req, res) => {
         const imageUrl = img;
         // ||"https://b.zmtcdn.com/data/dish_photos/cf4/eff3178d437faf3157af9944d491ecf4.jpg"
         if (imageUrl) {
-          await delay(1000);
+          await delay(2000);
 
           await frame.waitForSelector('input[type="file"][name="img"]', {
             visible: true,
@@ -470,7 +470,7 @@ swiggy.post("/data", async (req, res) => {
           console.log("fileInput", fileInput);
           await fileInput.uploadFile(localImagePath);
 
-          await delay(1000);
+          await delay(3000);
 
           await frame.waitForSelector(
             "button.pyxl-food__nextstep-btn.pyxl-w-full.pyxl-uppercase.pyxl-cursor-pointer",
