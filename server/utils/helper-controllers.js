@@ -120,6 +120,3 @@ export const isEmailExistInDB = async (req, res, next) => {
       .json({ success: false, error: err, msg: "Internal Server Error... !" });
   }
 };
-// export const userExists = async ( req , res , next ) => {
-
-// }

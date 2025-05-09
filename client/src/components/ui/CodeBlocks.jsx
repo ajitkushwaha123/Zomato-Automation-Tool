@@ -72,7 +72,7 @@ export const CodeBlocks = ({
           margin: 0,
           padding: 0,
           background: "transparent",
-          fontSize: "0.875rem", // text-sm equivalent
+          fontSize: "0.875rem", 
         }}
         wrapLines={true}
         showLineNumbers={true}

@@ -69,7 +69,7 @@ export const sendRegistrationSuccessEmail = tryCatch(async (req, res, next) => {
   const emailData = {
     userName: username,
     userEmail: email,
-    verificationCode: "1234", // Adjust as needed
+    verificationCode: "1234", 
   };
 
   const result = await sendEmail({

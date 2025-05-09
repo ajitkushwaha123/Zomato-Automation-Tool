@@ -7,7 +7,6 @@ import ItemsTable from "../Table/ItemsTable";
 import Toast from "../../Toast/Toast";
 
 const MenuView = () => {
-  // Initialize category state properly
   const [finalItems, setFinalItems] = useState([]);
   const [category, setCategory] = useState({
     category: null,
@@ -21,7 +20,6 @@ const MenuView = () => {
 
   const { menuData, message, error } = useSelector((state) => state.menu);
 
-  // Apply filters dynamically
   const filters = {
     category: category.category,
     sub_category: category.subCategory,

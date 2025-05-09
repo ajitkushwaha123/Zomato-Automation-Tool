@@ -36,7 +36,7 @@ const auth = async (req, res, next) => {
       });
     }
 
-    const user = await User.findById(decoded.id).select("-password"); // Exclude password
+    const user = await User.findById(decoded.id).select("-password");
 
     if (!user) {
       return res.status(404).json({

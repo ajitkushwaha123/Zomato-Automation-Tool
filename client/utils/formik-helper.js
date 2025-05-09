@@ -2,7 +2,7 @@ import { useFormik } from "formik";
 import toast, { Toaster } from "react-hot-toast";
 
 export const formik = useFormik({
-  initialValues: {}, // Correct typo: `intitailValues` -> `initialValues`
+  initialValues: {}, 
   onSubmit: async (values) => {
     console.log(values);
 

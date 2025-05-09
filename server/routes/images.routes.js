@@ -52,7 +52,6 @@ image.post("/upload", upload.single("menu"), async (req, res) => {
 
     const { file } = req;
 
-    // Check for allowed file types
     const allowedMimeTypes = [
       "image/png",
       "image/webp",
@@ -71,7 +70,6 @@ image.post("/upload", upload.single("menu"), async (req, res) => {
       return res.status(400).json({ error: "Uploaded file not found." });
     }
 
-    // Prepare image data for API request
     const imageContent = {
       inlineData: {
         data: fs.readFileSync(filePath).toString("base64"),
@@ -79,7 +77,6 @@ image.post("/upload", upload.single("menu"), async (req, res) => {
       },
     };
 
-    // Define the prompt
     const prompt = `
       Analyze this image and generate the following JSON:
       [
@@ -93,7 +90,6 @@ image.post("/upload", upload.single("menu"), async (req, res) => {
       ]
     `;
 
-    // Use Google Generative AI to analyze the image
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
     const result = await model.generateContent([prompt, imageContent]);
 
@@ -115,7 +111,6 @@ image.post("/upload", upload.single("menu"), async (req, res) => {
     const { title, description, tags, dominantColors, featureVector } =
       imageData[0];
 
-    // Upload the file to Cloudinary
     const uploadResult = await cloudinary.uploader.upload(filePath, {
       folder: "uploads",
       public_id: file.filename,
@@ -129,7 +124,6 @@ image.post("/upload", upload.single("menu"), async (req, res) => {
     console.log("Image Data:", imageData);
     console.log("File uploaded to Cloudinary:", uploadResult);
 
-    // Save metadata in the database
     const imageModel = new Image({
       url: uploadResult.secure_url,
       description,
@@ -141,7 +135,6 @@ image.post("/upload", upload.single("menu"), async (req, res) => {
 
     await imageModel.save();
 
-    // Respond with success
     return res.status(200).json({
       cloudinaryUrl: uploadResult.secure_url,
       imageData,

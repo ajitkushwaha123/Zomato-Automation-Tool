@@ -79,15 +79,6 @@ leads.post("/", verifyToken, async (req, res) => {
     });
   }
 
-  // const { projectId } = req.query;
-  // if (!projectId) {
-  //   return res.status(401).json({
-  //     msg: "Project Id is Missing... !",
-  //     success: false,
-  //   });
-  // }
-  
-
   try {
     const newLeadBoard = {
       userId,

@@ -680,7 +680,6 @@ export const verifyResetToken = async (req, res, next) => {
       });
     }
 
-    // Check if the token exists and is not expired
     const user = await User.findOne({
       resetPasswordToken,
       resetPasswordExpires: { $gt: Date.now() }, // Check if token is still valid
@@ -693,7 +692,6 @@ export const verifyResetToken = async (req, res, next) => {
       });
     }
 
-    // Attach the user object to the request for the next middleware
     req.user = user;
     next();
   } catch (err) {
