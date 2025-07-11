@@ -1,6 +1,6 @@
 # 🚀 AI-Powered Menu Automation Tool : Zomato Product Uploader
 
-Automate restaurant menu uploads to Zomato & Swiggy. with nearly 0 manual efforts 
+Automate restaurant menu uploads to Zomato & Swiggy. with nearly 0 manual efforts along with menu trasfer across various outlets & also between zomato & swiggy
 
 Features :- 
 
