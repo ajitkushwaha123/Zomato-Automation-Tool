@@ -71,6 +71,8 @@ gemini.post(
       "image/webp",
       "image/jpeg",
       "application/pdf",
+      "text/csv",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     ];
     if (!allowedMimeTypes.includes(file.mimetype)) {
       return res.status(400).send({
@@ -93,39 +95,39 @@ gemini.post(
         },
       };
 
-      const prompt = `!important generate discription carefully should be simple easy to understand min (5 words) - max(10 words) 5-10 words && description should be different from title
-            combine products with variants if provided separtely
-            !important: Extract variant carefully bro Add variants all the variants from the image must, if mentioned. Import variants carefully and strictly follow the pattern. The response must be strictly in JavaScript array format. The data must follow the required structure with the following fields:
-            - name // for non-veg category try adding something non-veg in title & description it can be chicken mutton
-            - description // shoud be different from title for non-veg category try adding meet type name in the description "chicken" , "mutton"
-            - category (capitalize the first letter add if missing)
-            - sub_category  (capitalize the first letter and if missing same as category)
-            - base_price (must be equal to lowest variant price if variants are present else provide simple product price)
-            - item_type (Goods or Service)
-            - variants (array of objects in the format: [{ "property_name" : "string", "values": [{title : "Small" , price : "499"} , {title : "Large" , price : "999"}] }]) - variants size must be 1
-            - food_type
+      // const prompt = `"!important i want description in detail if source contain description then extract from source only" extract product from the data handle description carefully must be meaning full if source contain description of items then pic from source it self. handle category  , subcategory and product and all don't club product into variants if they don't just differ by title !important generate discription carefully should be simple easy to understand min (5 words) - max(10 words) 5-10 words && description should be different from title
+      //       combine products with variants if provided separtely
+      //       !important: Extract variant carefully bro Add variants all the variants from the image must, if mentioned. Import variants carefully and strictly follow the pattern. The response must be strictly in JavaScript array format. The data must follow the required structure with the following fields:
+      //       - name // for non-veg category try adding something non-veg in title & description it can be chicken mutton
+      //       - description // shoud be different from title for non-veg category try adding meet type name in the description "chicken" , "mutton"
+      //       - category (capitalize the first letter add if missing)
+      //       - sub_category  (capitalize the first letter and if missing same as category)
+      //       - base_price (must be equal to lowest variant price if variants are present else provide simple product price)
+      //       - item_type (Goods or Service)
+      //       - variants (array of objects in the format: [{ "property_name" : "string", "values": [{title : "Small" , price : "499"} , {title : "Large" , price : "999"}] }]) - variants size must be 1
+      //       - food_type
 
-            Add dummy data if something is missing.
+      //       Add dummy data if something is missing.
 
-            Ensure all fields are fully filled, except for "Variants", which can be left empty for some products. Do not add comments, notes, or any additional information—only provide the array data.
+      //       Ensure all fields are fully filled, except for "Variants", which can be left empty for some products. Do not add comments, notes, or any additional information—only provide the array data.
 
-            Extract the product details from the menu and return them as a JavaScript array of objects. For example:
-            [
-              {
-                name: "Product Name",
-                description: "Product Description", // Generate yourself must add full stop .
-                category: "Category",
-                sub_category: "Subcategory",
-                base_price: 100,
-                item_type: "service" // Default if not provided
-                variants: [{ property_name : "Size", values : [{title : "Small" , price : "100"} , {title : "Large" , price : "999"}] }] // If variants are provided, add them in this format.
-                food_type: "veg" // (String) - options: {"veg", "non_veg", "egg"} // Add yourself if not provided
-              },
-              ...
-            ];
+      //       Extract the product details from the menu and return them as a JavaScript array of objects. For example:
+      //       [
+      //         {
+      //           name: "Product Name",
+      //           description: "Product Description", // Generate yourself must add full stop .
+      //           category: "Category",
+      //           sub_category: "Subcategory",
+      //           base_price: 100,
+      //           item_type: "service" // Default if not provided
+      //           variants: [{ property_name : "Size", values : [{title : "Small" , price : "100"} , {title : "Large" , price : "999"}] }] // If variants are provided, add them in this format.
+      //           food_type: "veg" // (String) - options: {"veg", "non_veg", "egg"} // Add yourself if not provided
+      //         },
+      //         ...
+      //       ];
 
-            Ensure all fields are completed accurately. Use your knowledge to fill in missing product details, but exclude variants if they are not explicitly mentioned in the menu/image/PDF.
-      `;
+      //       Ensure all fields are completed accurately. Use your knowledge to fill in missing product details, but exclude variants if they are not explicitly mentioned in the menu/image/PDF.
+      // `;
 
       //       const prompt = `Extract product details from the menu and return them as a JavaScript array of objects. Follow these strict guidelines:
 
@@ -169,6 +171,50 @@ gemini.post(
       //   }
       // ]
       //   `;
+
+      const prompt = `
+!important: I want detailed, meaningful product descriptions.
+If the source contains a description, use it exactly from the source.
+If not, create a simple and easy-to-understand description (5–10 words), different from the title.
+
+Instructions:
+1. Extract products from the data.
+2. Handle category and sub_category carefully:
+   - Capitalize the first letter.
+   - If sub_category is missing, set it the same as category.
+3. Do not merge different products into variants unless they are actually variants.
+4. If variants are listed separately, combine them correctly.
+5. Variants:
+   - Must be an array of objects: [{ "property_name": "string", "values": [{title: "Small", price: "499"}, {title: "Large", price: "999"}] }]
+   - Only 1 property_name allowed (e.g., "Size").
+   - base_price = lowest variant price if variants exist, else product price.
+6. Name:
+   - For non-veg, try adding something like "chicken" or "mutton" in the title.
+7. Description:
+   - Must be different from title.
+   - For non-veg, add meat type ("chicken", "mutton") in the description.
+   - End with a full stop.
+8. Food_type:
+   - Choose from {"veg", "non_veg", "egg"}.
+9. item_type: Always "Goods" unless explicitly mentioned otherwise.
+10. Add dummy data if something is missing but keep it realistic.
+11. No comments, notes, or extra text—output ONLY the JavaScript array.
+
+Output Format (JavaScript array only):
+[
+  {
+    name: "Product Name",
+    description: "Meaningful product description.",
+    category: "Category",
+    sub_category: "Subcategory",
+    base_price: 100,
+    item_type: "Goods",
+    variants: [{ property_name: "Size", values: [{title: "Small", price: "100"}, {title: "Large", price: "999"}] }],
+    food_type: "veg"
+  },
+  ...
+]
+`;
 
       const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
       const result = await model.generateContent([prompt, image]);
@@ -245,6 +291,30 @@ gemini.post("/update-menu", async (req, res) => {
 
     const parsedProducts = extractValidJsonObjects(responseText);
     console.log(parsedProducts);
+
+    await Product.deleteMany({
+      _id: { $in: data.map((item) => item._id) },
+    });
+
+    for (let i = 0; i < parsedProducts.length; i++) {
+      parsedProducts[i].id =
+        Date.now().toString() + Math.random().toString(36).substr(2, 5);
+      parsedProducts[i].userId = data[i].userId;
+      parsedProducts[i].projectId = data[i].projectId;
+    }
+
+    if (parsedProducts.length > 0) {
+      await Product.insertMany(parsedProducts, { ordered: false }).catch(
+        (err) => console.log("Error inserting data:", err.message)
+      );
+    }
+
+    console.log("Parsed Products:", parsedProducts);
+    if (parsedProducts.length === 0) {
+      return res.status(400).send({
+        error: "No valid products found in the response.",
+      });
+    }
 
     return res.status(200).json({
       data: parsedProducts,

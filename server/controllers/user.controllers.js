@@ -672,7 +672,6 @@ export const verifyResetToken = async (req, res, next) => {
   try {
     const { resetPasswordToken } = req.body;
 
-    // Validation: Check if token is provided
     if (!resetPasswordToken) {
       return res.status(400).json({
         success: false,
@@ -682,7 +681,7 @@ export const verifyResetToken = async (req, res, next) => {
 
     const user = await User.findOne({
       resetPasswordToken,
-      resetPasswordExpires: { $gt: Date.now() }, // Check if token is still valid
+      resetPasswordExpires: { $gt: Date.now() }, 
     });
 
     if (!user) {

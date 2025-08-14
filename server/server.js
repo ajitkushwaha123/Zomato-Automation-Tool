@@ -13,7 +13,8 @@ import project from "./routes/project.routes.js";
 import products from "./routes/product.routes.js";
 import leads from "./routes/leads.route.js";
 import swiggy from "./routes/swiggy.routes.js";
-
+import googles from "./routes/google.routes.js";
+import zomatoVerifyRouter from "./routes/zomato-verify.routes.js";
 dotenv.config();
 
 const app = express();
@@ -64,6 +65,7 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api/zomato", zomatoRouter);
+app.use("/api/zomato-verify", zomatoVerifyRouter);
 app.use("/api/gemini", gemini);
 
 app.use("/api/image", image);
@@ -76,6 +78,7 @@ app.use("/api/user", user);
 app.use("/api/scrape", scrape);
 app.use("/api/leads", leads);
 app.use("/api/swiggy", swiggy);
+app.use("/api/auth/googles", googles);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

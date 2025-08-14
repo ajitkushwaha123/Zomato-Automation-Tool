@@ -1,6 +1,7 @@
 import express from "express";
 import { verifyToken } from "../controllers/user.controllers.js";
 import Product from "../models/Product.js";
+import axios from "axios";
 
 const products = express.Router();
 
@@ -49,7 +50,6 @@ products.put("/bulk-update", verifyToken, async (req, res) => {
         projectId,
       });
     }
-    
 
     if (!updatedData || updatedData.length === 0) {
       return res.status(400).json({
@@ -179,5 +179,6 @@ products.delete("/single", verifyToken, async (req, res) => {
     });
   }
 });
+
 
 export default products;

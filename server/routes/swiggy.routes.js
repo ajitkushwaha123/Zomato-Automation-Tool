@@ -142,41 +142,41 @@ swiggy.post("/data", async (req, res) => {
 
         await delay(3000);
 
-        const foundCategories = await frame.evaluate(() => {
-          const elements = [
-            ...document.querySelectorAll(
-              'div[data-testid="category-list"] div[data-testid="list-item"] span'
-            ),
-          ];
+        // const foundCategories = await frame.evaluate(() => {
+        //   const elements = [
+        //     ...document.querySelectorAll(
+        //       'div[data-testid="category-list"] div[data-testid="list-item"] span'
+        //     ),
+        //   ];
 
-          console.log("Total category elements found:", elements.length);
-          return elements.map((el) => el.innerText.trim());
-        });
+        //   console.log("Total category elements found:", elements.length);
+        //   return elements.map((el) => el.innerText.trim());
+        // });
 
-        console.log("Extracted Categories:", foundCategories);
+        // console.log("Extracted Categories:", foundCategories);
 
-        const categoryName = category;
+        // const categoryName = category;
 
-        if (!foundCategories.includes(categoryName)) {
-          console.log(`❌ Category '${categoryName}' not found.`);
-        } else {
-          await frame.evaluate((category) => {
-            const categoryElement = [
-              ...document.querySelectorAll(
-                'div[data-testid="category-list"] div[data-testid="list-item"]'
-              ),
-            ].find(
-              (el) => el.querySelector("span")?.innerText.trim() === category
-            );
+        // if (!foundCategories.includes(categoryName)) {
+        //   console.log(`❌ Category '${categoryName}' not found.`);
+        // } else {
+        //   await frame.evaluate((category) => {
+        //     const categoryElement = [
+        //       ...document.querySelectorAll(
+        //         'div[data-testid="category-list"] div[data-testid="list-item"]'
+        //       ),
+        //     ].find(
+        //       (el) => el.querySelector("span")?.innerText.trim() === category
+        //     );
 
-            if (categoryElement) {
-              console.log(`✅ Clicking on category: ${category}`);
-              categoryElement.click();
-            } else {
-              console.log(`❌ Category '${category}' not found in DOM.`);
-            }
-          }, categoryName);
-        }
+        //     if (categoryElement) {
+        //       console.log(`✅ Clicking on category: ${category}`);
+        //       categoryElement.click();
+        //     } else {
+        //       console.log(`❌ Category '${category}' not found in DOM.`);
+        //     }
+        //   }, categoryName);
+        // }
 
         console.log("Switched to iframe.");
 
@@ -295,12 +295,12 @@ swiggy.post("/data", async (req, res) => {
         }
 
         if (variants.length > 0) {
-          await frame.waitForSelector('[data-testid="Quantity"]', {
+          await frame.waitForSelector('[data-testid="Size"]', {
             visible: true,
           });
 
           // Click on the submit button
-          const addVariantBtn = await frame.$('[data-testid="Quantity"]');
+          const addVariantBtn = await frame.$('[data-testid="Size"]');
 
           console.log("final", addVariantBtn);
 

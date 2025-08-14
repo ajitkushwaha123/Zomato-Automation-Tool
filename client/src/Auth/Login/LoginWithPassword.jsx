@@ -60,8 +60,8 @@ const LoginWithPassword = () => {
 
   const { formik, isLoading } = useFormikHook({
     initialValues: {
-      usernameOrEmail: "",
-      password: "",
+      usernameOrEmail: "ajitkushwahacse@gmail.com",
+      password: "123456",
       otp: "",
     },
     validate: onValidate,

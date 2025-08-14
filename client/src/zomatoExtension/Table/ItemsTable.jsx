@@ -1,7 +1,14 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { Search, X, CloudUpload, Trash2, Plus } from "lucide-react";
+import {
+  Search,
+  X,
+  CloudUpload,
+  Trash2,
+  Plus,
+  SearchCheck,
+} from "lucide-react";
 import Toast from "../../Toast/Toast";
 import { loadingGif } from "../../assets";
 import {
@@ -11,7 +18,7 @@ import {
 } from "../../redux/slices/productSlice";
 import axios from "axios";
 import AutomationButton from "../AutomationButton";
-import { handleSearchResult, openModal } from "../../redux/slices/modalSlice";
+import { openModal } from "../../redux/slices/modalSlice";
 import ImageModal from "../../ImageSearch/ImageModal";
 import Button from "../../components/Button/Button";
 import Feature from "../../Project/Feature";
@@ -20,16 +27,15 @@ import { useParams } from "react-router-dom";
 import { useProducts } from "../../hooks/useProducts";
 import { motion } from "framer-motion";
 import ImageUpload from "../../Project/ImageUpload";
+import SearchDialog from "../SearchDialog";
 
 const ItemsTable = ({ filters = {} }) => {
   const { projectId } = useParams();
   const {
     deletedProductsId,
     menuData,
-    updatedProducts,
     handleUpdateData,
     isLoading,
-    error,
     message,
     bulkUpdate,
     deleteItemById,
@@ -42,6 +48,7 @@ const ItemsTable = ({ filters = {} }) => {
   const [loading, setLoading] = useState(false);
   const [showFeatureModal, setShowFeatureModal] = useState(false);
   const [showImageModal, setShowImageModal] = useState(false);
+  const [showSearchModal, setShowSearchModal] = useState(false);
   const [imgProductId, setImageProductId] = useState("");
 
   const handleModalChange = (val) => {
@@ -125,7 +132,6 @@ const ItemsTable = ({ filters = {} }) => {
     alert(name);
     console.log("name", index);
     dispatch(openModal({ title: name, id: index }));
-    dispatch(handleSearchResult(name));
   };
 
   const { isOpen, images, title } = useSelector((state) => state.searchModal);
@@ -327,6 +333,8 @@ const ItemsTable = ({ filters = {} }) => {
                         onClick={(e) =>
                           // handleImageState(e, product?.name, product?.id)
                           {
+                            setQuery(product?.name);
+                            setShowSearchModal(true);
                             setShowImageModal(true);
                             setImageProductId(product.id);
                           }
@@ -348,6 +356,9 @@ const ItemsTable = ({ filters = {} }) => {
                           handleProductUpdate(e, "name", product.id)
                         }
                       />
+
+                      <br />
+                      {product?.description}
                     </td>
                     <td className="p-4 border-b border-gray-700 text-gray-300">
                       <input
@@ -539,16 +550,23 @@ const ItemsTable = ({ filters = {} }) => {
             />
           )}
           {showImageModal == true && (
-            <Modal
-              isOpen={showImageModal}
-              stillOpen={(val) => setShowImageModal(val)}
-              content={
-                <ImageUpload
-                  projectId={projectId}
-                  productId={imgProductId}
-                  stillOpen={(val) => setShowImageModal(val)}
-                />
-              }
+            // <Modal
+            //   isOpen={showImageModal}
+            //   stillOpen={(val) => setShowImageModal(val)}
+            //   content={
+            //     <ImageUpload
+            //       projectId={projectId}
+            //       productId={imgProductId}
+            //       stillOpen={(val) => setShowImageModal(val)}
+            //     />
+            //   }
+            // />
+
+            <SearchDialog
+              isOpen={showSearchModal}
+              onClose={() => setShowSearchModal(false)}
+              query={query}
+              productId={imgProductId}
             />
           )}
         </div>

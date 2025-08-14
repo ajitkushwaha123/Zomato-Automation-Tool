@@ -29,6 +29,7 @@
     "express": "^4.21.1",
     "flatted": "^3.3.2",
     "fs": "^0.0.1-security",
+    "googleapis": "^149.0.0",
     "json-bigint": "^1.0.0",
     "jsonwebtoken": "^9.0.2",
     "mailgen": "^2.0.28",
