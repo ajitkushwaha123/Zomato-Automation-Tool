@@ -1,14 +1,14 @@
-2025/08/13-17:00:10.423 5a30 Reusing MANIFEST C:\Users\Aakash\Desktop\Auth\server\puppeteer_profile\Default\IndexedDB\https_www.zomato.com_0.indexeddb.leveldb/MANIFEST-000001
-2025/08/13-17:00:10.426 5a30 Recovering log #139
-2025/08/13-17:00:10.432 5a30 Reusing old log C:\Users\Aakash\Desktop\Auth\server\puppeteer_profile\Default\IndexedDB\https_www.zomato.com_0.indexeddb.leveldb/000139.log 
-2025/08/13-17:00:10.434 5a30 Delete type=2 #137
-2025/08/13-17:00:12.788 40ac Level-0 table #144: started
-2025/08/13-17:00:12.940 40ac Level-0 table #144: 90829 bytes OK
-2025/08/13-17:00:12.944 40ac Delete type=0 #139
-2025/08/13-17:00:12.949 5a30 Manual compaction at level-0 from '\x000\x00\x00\x00' @ 72057594037927935 : 1 .. '\x001\x00\x00\x00' @ 0 : 0; will stop at '\x000\x00\x00\x05' @ 61812 : 1
-2025/08/13-17:00:12.949 5a30 Compacting 1@0 + 1@1 files
-2025/08/13-17:00:13.002 5a30 Generated table #145@0: 7067 keys, 353215 bytes
-2025/08/13-17:00:13.002 5a30 Compacted 1@0 + 1@1 files => 353215 bytes
-2025/08/13-17:00:13.005 5a30 compacted to: files[ 0 1 1 0 0 0 0 ]
-2025/08/13-17:00:13.007 5a30 Delete type=2 #144
-2025/08/13-17:00:13.012 5a30 Manual compaction at level-0 from '\x000\x00\x00\x05' @ 61812 : 1 .. '\x001\x00\x00\x00' @ 0 : 0; will stop at (end)
+2025/08/13-17:02:35.110 5d4c Reusing MANIFEST C:\Users\Aakash\Desktop\Auth\server\puppeteer_profile\Default\IndexedDB\https_www.zomato.com_0.indexeddb.leveldb/MANIFEST-000001
+2025/08/13-17:02:35.112 5d4c Recovering log #143
+2025/08/13-17:02:35.118 5d4c Reusing old log C:\Users\Aakash\Desktop\Auth\server\puppeteer_profile\Default\IndexedDB\https_www.zomato.com_0.indexeddb.leveldb/000143.log 
+2025/08/13-17:02:35.119 5d4c Delete type=2 #141
+2025/08/13-17:02:37.798 4da8 Level-0 table #148: started
+2025/08/13-17:02:37.818 4da8 Level-0 table #148: 81840 bytes OK
+2025/08/13-17:02:37.823 4da8 Delete type=0 #143
+2025/08/13-17:02:37.828 f98 Manual compaction at level-0 from '\x001\x00\x00\x00' @ 72057594037927935 : 1 .. '\x002\x00\x00\x00' @ 0 : 0; will stop at '\x001\x00\x00\x05' @ 63541 : 1
+2025/08/13-17:02:37.829 f98 Compacting 1@0 + 1@1 files
+2025/08/13-17:02:37.889 f98 Generated table #149@0: 7159 keys, 362601 bytes
+2025/08/13-17:02:37.889 f98 Compacted 1@0 + 1@1 files => 362601 bytes
+2025/08/13-17:02:37.891 f98 compacted to: files[ 0 1 1 0 0 0 0 ]
+2025/08/13-17:02:37.893 f98 Delete type=2 #148
+2025/08/13-17:02:37.897 f98 Manual compaction at level-0 from '\x001\x00\x00\x05' @ 63541 : 1 .. '\x002\x00\x00\x00' @ 0 : 0; will stop at (end)

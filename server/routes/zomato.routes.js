@@ -57,10 +57,11 @@ zomatoRouter.post("/data", async (req, res) => {
 
   console.log("Data received:", data);
   try {
+    
     // const browser = await puppeteer.connect({
     //   browserURL: "http://localhost:9222",
     //   defaultViewport: null,
-    //   headless: false,
+    //   headless: false, 
     //   args: [
     //     "--no-sandbox",
     //     "--disable-setuid-sandbox",
@@ -95,9 +96,11 @@ zomatoRouter.post("/data", async (req, res) => {
     });
 
     await page.goto(
-      "https://www.zomato.com/partners/onlineordering/menu/?resId=22108484",
+      "https://www.zomato.com/partners/onlineordering/menu/?resId=22108549",
       { waitUntil: "networkidle2" }
     );
+
+ 
 
     let first = 0;
 
@@ -198,9 +201,7 @@ zomatoRouter.post("/data", async (req, res) => {
     }
 
     for (const item of data) {
-      const { name, description, variants, img } = item;
-      let base_price = (Number(item.base_price) || 0) * 1.4;
-
+      const { name, description, base_price, variants, img  } = item;
       let { food_type } = item;
       let itemCategory = item.category;
       let itemSubCategory = item.sub_category;
