@@ -1,4 +1,4 @@
-// zomatoVerifyRouter.js
+// ncr/v-café-meals-by-pvr-1-connaught-place-new-delhi/order
 import express from "express";
 import puppeteer from "puppeteer";
 import axios from "axios";
@@ -14,7 +14,7 @@ const __dirname = path.dirname(__filename);
 
 const USER_DATA_DIR =
   process.env.PUPPETEER_USER_DATA_DIR || path.resolve("./puppeteer_profile");
-const HEADLESS = false;
+const HEADLESS = true;
 
 let browser = null;
 
@@ -48,12 +48,10 @@ let browser = null;
 // }
 
 zomatoVerifyRouter.post("/data", async (req, res) => {
-
-
   const browser = await puppeteer.connect({
     browserURL: "http://127.0.0.1:9222",
     defaultViewport: null,
-    headless: false, // Run in visible mode for debugging
+    headless: true, // Run in visible mode for debugging
     args: [
       "--no-sandbox",
       "--disable-setuid-sandbox",
@@ -216,7 +214,6 @@ zomatoVerifyRouter.post("/data", async (req, res) => {
     await page.click('[data-tut="SUBMIT_CHANGES"]');
 
     await delay(300);
-    await page.close();
 
     res.status(200).send("Menu items uploaded successfully.");
   } catch (err) {

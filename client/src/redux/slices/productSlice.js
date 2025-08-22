@@ -37,7 +37,6 @@ export const handleMenuUpload = createAsyncThunk(
   }
 );
 
-
 export const fetchMenu = createAsyncThunk("products/fetchMenu", async (id) => {
   return apiRequest(
     () => axios.get(`${API_URL}/products?projectId=${id}`),
@@ -129,7 +128,6 @@ export const deleteProductById = createAsyncThunk(
     );
   }
 );
-
 
 // Menu slice
 const menuSlice = createSlice({

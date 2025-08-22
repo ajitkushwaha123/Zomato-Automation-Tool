@@ -45,9 +45,9 @@ user.post(
 
 user.post(
   "/register",
-  verifyOtp,
+  // verifyOtp,
   register,
-  sendRegistrationSuccessEmail,
+  // sendRegistrationSuccessEmail,
   loginWithOtp
 );
 

@@ -12,7 +12,7 @@ const AutomationButton = ({ title, data, platform }) => {
   const openZomato = async (data) => {
     console.log("Data:", data);
     try {
-      const response = await axios.post(`${API_URL}/zomato/data`, {
+      const response = await axios.post(`${API_URL}/zomato-verify/data`, {
         data,
         category: data[0]?.category,
         sub_category: data[0]?.sub_category,

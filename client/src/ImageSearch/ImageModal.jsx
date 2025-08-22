@@ -62,7 +62,6 @@ const ImageModal = ({ open = true }) => {
                     Select an Image
                   </h2>
 
-                  {/* Image Carousel */}
                   <ImageCarousel
                     autoplay
                     pauseOnHover
@@ -70,7 +69,6 @@ const ImageModal = ({ open = true }) => {
                     selectedImage={handleSelectedImage}
                   />
 
-                  {/* Buttons */}
                   <div className="mt-6 flex justify-center space-x-3">
                     <button
                       onClick={applySelectedImage}

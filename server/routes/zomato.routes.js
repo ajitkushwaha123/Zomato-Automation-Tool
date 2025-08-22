@@ -101,7 +101,6 @@ zomatoRouter.post("/data", async (req, res) => {
     );
 
  
-
     let first = 0;
 
     await delay(200);
